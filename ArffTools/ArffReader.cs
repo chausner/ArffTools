@@ -398,7 +398,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values are represented as <c>null</c>.</para>
         /// </returns>
         /// <exception cref="ObjectDisposedException"/>
@@ -421,7 +421,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values are represented as <c>null</c>.</para>
         /// </returns>
         /// <exception cref="ObjectDisposedException"/>
@@ -434,63 +434,68 @@ namespace ArffTools
             if (arffHeader == null)
                 throw new InvalidOperationException("Before any instances can be read, the header needs to be read by a call to ReadHeader.");
 
+            return ReadInstance(out instanceWeight, arffHeader.Attributes, streamReader);
+        }
+
+        private object[] ReadInstance(out double? instanceWeight, IReadOnlyList<ArffAttribute> attributes, TextReader textReader)
+        {
             instanceWeight = null;
 
             char c = default(char);
 
             // skip whitespace, comments and end-of-line
-            while (!streamReader.EndOfStream)
+            while (!textReader.EndOfStream())
             {
-                c = (char)streamReader.Peek();
+                c = (char)textReader.Peek();
 
                 if (char.IsWhiteSpace(c))
-                    streamReader.Read();
+                    textReader.Read();
                 else if (c == '%')
                 {
                     do
                     {
-                        c = (char)streamReader.Read();
+                        c = (char)textReader.Read();
                         if (c == '\r' || c == '\n')
                             break;
-                    } while (!streamReader.EndOfStream);
-                    if (c == '\r' && streamReader.Peek() == '\n')
-                        streamReader.Read();
+                    } while (!textReader.EndOfStream());
+                    if (c == '\r' && textReader.Peek() == '\n')
+                        textReader.Read();
                 }
                 else
                     break;
             }
 
-            if (streamReader.EndOfStream)
+            if (textReader.EndOfStream())
                 return null;
 
             object[] instance;
 
             if (c == '{')
-                instance = ReadSparseInstance();
+                instance = ReadSparseInstance(attributes, textReader);
             else
             {
-                instance = new object[arffHeader.Attributes.Count];
+                instance = new object[attributes.Count];
 
                 for (int i = 0; i < instance.Length; i++)
                 {
                     bool quoted;
 
-                    string value = ReadToken(out quoted, endOfLine: false);
+                    string value = ReadToken(out quoted, endOfLine: false, textReader : textReader);
 
-                    instance[i] = ParseValue(value, quoted, arffHeader.Attributes[i].Type);
+                    instance[i] = ParseValue(value, quoted, attributes[i].Type);
 
                     if (i != instance.Length - 1)
-                        ReadToken(expectedToken: ",", endOfLine: false, quoting: false);
+                        ReadToken(expectedToken: ",", endOfLine: false, quoting: false, textReader: textReader);
                 }
             }
 
-            string token = ReadToken(quoting: false);
+            string token = ReadToken(quoting: false, textReader: textReader);
 
             if (token != null)
                 if (token == ",")
                 {
-                    ReadToken(expectedToken: "{", endOfLine: false, quoting: false);
-                    string weightToken = ReadToken(endOfLine: false);
+                    ReadToken(expectedToken: "{", endOfLine: false, quoting: false, textReader: textReader);
+                    string weightToken = ReadToken(endOfLine: false, textReader: textReader);
 
                     double weight;
 
@@ -499,8 +504,8 @@ namespace ArffTools
 
                     instanceWeight = weight;
 
-                    ReadToken(expectedToken: "}", endOfLine: false, quoting: false);
-                    ReadToken(endOfLine: true);
+                    ReadToken(expectedToken: "}", endOfLine: false, quoting: false, textReader: textReader);
+                    ReadToken(endOfLine: true, textReader: textReader);
                 }
                 else
                     throw new InvalidDataException($"Unexpected token \"{token}\". Expected \",\" or end-of-line.");
@@ -508,19 +513,19 @@ namespace ArffTools
             return instance;
         }
 
-        private object[] ReadSparseInstance()
+        private object[] ReadSparseInstance(IReadOnlyList<ArffAttribute> attributes, TextReader textReader)
         {
-            object[] instance = new object[arffHeader.Attributes.Count];
+            object[] instance = new object[attributes.Count];
 
             for (int i = 0; i < instance.Length; i++)
-                if (arffHeader.Attributes[i].Type is ArffNumericAttribute)
+                if (attributes[i].Type is ArffNumericAttribute)
                     instance[i] = 0.0;
-                else if (arffHeader.Attributes[i].Type is ArffNominalAttribute)
+                else if (attributes[i].Type is ArffNominalAttribute)
                     instance[i] = 0;
 
-            ReadToken(expectedToken: "{", endOfLine: false, quoting: false);
+            ReadToken(expectedToken: "{", endOfLine: false, quoting: false, textReader : textReader);
 
-            string token = ReadToken(endOfLine: false, quoting: false);
+            string token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
 
             if (token == "}")
                 return instance;
@@ -537,18 +542,18 @@ namespace ArffTools
 
                 bool quoted;
 
-                string value = ReadToken(out quoted, endOfLine: false);
+                string value = ReadToken(out quoted, endOfLine: false, textReader: textReader);
 
-                instance[index] = ParseValue(value, quoted, arffHeader.Attributes[index].Type);
+                instance[index] = ParseValue(value, quoted, attributes[index].Type);
 
-                token = ReadToken(endOfLine: false, quoting: false);
+                token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
 
                 if (token == "}")
                     break;
                 else if (token != ",")
                     throw new InvalidDataException($"Unexpected token \"{token}\". Expected \",\" or \"}}\".");
 
-                token = ReadToken(endOfLine: false, quoting: false);
+                token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
             }
 
             return instance;
@@ -594,26 +599,23 @@ namespace ArffTools
             {
                 ArffRelationalAttribute relationalAttribute = (ArffRelationalAttribute)attributeType;
 
-                object[] o = new object[relationalAttribute.ChildAttributes.Count];
+                List<object[]> relationalInstances = new List<object[]>();
 
                 using (StringReader stringReader = new StringReader(value))
-                {
-                    for (int i = 0; i < relationalAttribute.ChildAttributes.Count; i++)
+                    while (true)
                     {
-                        bool quoted2;
+                        // weights for relational instances are currently discarded
+                        double? instanceWeight;
 
-                        string value2 = ReadToken(out quoted2, endOfLine: false, textReader: stringReader);
+                        object[] instance = ReadInstance(out instanceWeight, relationalAttribute.ChildAttributes, stringReader);
 
-                        o[i] = ParseValue(value2, quoted2, relationalAttribute.ChildAttributes[i].Type);
+                        if (instance == null)
+                            break;
 
-                        if (i != relationalAttribute.ChildAttributes.Count - 1)
-                            ReadToken(expectedToken: ",", endOfLine: false, quoting: false, textReader: stringReader);
+                        relationalInstances.Add(instance);         
                     }
 
-                    ReadToken(endOfLine: true, textReader: stringReader);
-                }
-
-                return o;
+                return relationalInstances.ToArray();
             }
             else
                 throw new ArgumentException("Unsupported ArffAttributeType.", nameof(attributeType));

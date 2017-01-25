@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace ArffTools
 
         int step = 0;
 
-        List<object> attributeInfos = new List<object>();
+        List<ArffAttribute> writtenAttributes = new List<ArffAttribute>();
 
         bool disposed = false;
 
@@ -198,12 +199,7 @@ namespace ArffTools
 
             WriteAttribute(attribute, 0);
 
-            if (attribute.Type is ArffNominalAttribute)
-                attributeInfos.Add(((ArffNominalAttribute)attribute.Type).Values);
-            else if (attribute.Type is ArffDateAttribute)
-                attributeInfos.Add(((ArffDateAttribute)attribute.Type).DateFormat);
-            else
-                attributeInfos.Add(null);
+            writtenAttributes.Add(attribute);
 
             step = 2;
         }
@@ -342,7 +338,7 @@ namespace ArffTools
                 throw new ObjectDisposedException(GetType().FullName);
             if (instance == null)
                 throw new ArgumentNullException(nameof(instance));
-            if (instance.Length != attributeInfos.Count)
+            if (instance.Length != writtenAttributes.Count)
                 throw new ArgumentException("Instance does not have the same number of entries as attributes have been written.", nameof(instance));
             if (step < 2)
                 throw new InvalidOperationException("The relation name and at least one attribute must have been written before any instances can be written.");
@@ -358,7 +354,7 @@ namespace ArffTools
             if (sparse)
                 streamWriter.Write('{');
 
-            WriteInstanceData(instance, sparse, streamWriter);
+            WriteInstanceData(instance, sparse, writtenAttributes, streamWriter);
 
             if (sparse)
                 streamWriter.Write('}');
@@ -369,7 +365,7 @@ namespace ArffTools
             streamWriter.WriteLine();
         }
 
-        private void WriteInstanceData(object[] instance, bool sparse, TextWriter textWriter)
+        private void WriteInstanceData(object[] instance, bool sparse, IReadOnlyList<ArffAttribute> attributes, TextWriter textWriter)
         {
             int numAttributesWritten = 0;
 
@@ -390,7 +386,7 @@ namespace ArffTools
                 else if (numAttributesWritten != 0)
                     textWriter.Write(",");
 
-                WriteValue(value, i, sparse, textWriter);
+                WriteValue(value, attributes[i], textWriter);
 
                 numAttributesWritten++;
             }
@@ -433,7 +429,7 @@ namespace ArffTools
                 WriteInstance(instance, sparse);
         }
 
-        private void WriteValue(object value, int i, bool sparse, TextWriter textWriter)
+        private void WriteValue(object value, ArffAttribute attribute, TextWriter textWriter)
         {
             if (value == null)
                 textWriter.Write("?");
@@ -443,7 +439,7 @@ namespace ArffTools
                 textWriter.Write(QuoteAndEscape((string)value));
             else if (value is int)
             {
-                IList<string> values = attributeInfos[i] as IList<string>;
+                ReadOnlyCollection<string> values = (attribute.Type as ArffNominalAttribute)?.Values;
 
                 if (values == null || values.Count <= (int)value)
                     throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
@@ -452,18 +448,33 @@ namespace ArffTools
             }
             else if (value is DateTime)
             {
-                string dateFormat = attributeInfos[i] as string;
+                string dateFormat = (attribute.Type as ArffDateAttribute)?.DateFormat;
 
                 if (dateFormat == null)
                     throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
 
                 textWriter.Write(QuoteAndEscape(((DateTime)value).ToString(dateFormat, CultureInfo.InvariantCulture)));
             }
-            else if (value is object[])
+            else if (value is object[][])
             {
+                ReadOnlyCollection<ArffAttribute> relationalAttributes = (attribute.Type as ArffRelationalAttribute)?.ChildAttributes;
+
+                if (relationalAttributes == null)
+                    throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
+
                 using (StringWriter stringWriter = new StringWriter())
                 {
-                    WriteInstanceData((object[])value, false, stringWriter); // sparse format seems not to be supported here
+                    object[][] relationalInstances = (object[][])value;
+
+                    for (int j = 0; j < relationalInstances.Length; j++)
+                    {
+                        // sparse format does not seem to be supported in relational values
+                        // instance weights seem to be supported in the format but they cannot be represented with an object[] alone, so we don't support them for now
+                        WriteInstanceData(relationalInstances[j], false, relationalAttributes, stringWriter); 
+
+                        if (j != relationalInstances.Length - 1)
+                            stringWriter.WriteLine();
+                    }
 
                     textWriter.Write(QuoteAndEscape(stringWriter.GetStringBuilder().ToString()));
                 }
@@ -589,7 +600,7 @@ namespace ArffTools
                     streamWriter.Dispose();
 
                 streamWriter = null;
-                attributeInfos = null;
+                writtenAttributes = null;
 
                 disposed = true;
             }
