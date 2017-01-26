@@ -1,7 +1,8 @@
 # ArffTools
 .NET library for reading and writing Weka attribute-relation file format (ARFF) files
 
-[NuGet Package](https://www.nuget.org/packages/ArffTools/)
+[![NuGet](https://img.shields.io/nuget/v/ArffTools.svg)](https://www.nuget.org/packages/ArffTools/)
+[![license](https://img.shields.io/github/license/chausner/ArffTools.svg)](https://github.com/chausner/ArffTools/blob/master/LICENSE.md)
 
 Features
 --------
@@ -42,7 +43,3 @@ using (ArffWriter arffWriter = new ArffWriter("iris.arff"))
     arffWriter.WriteInstance(new object[] { 5.1, 3.5, 1.4, 0.2, 0 });
 }
 ```
-
-License
--------
-MIT, see LICENSE.md
