@@ -504,10 +504,10 @@ namespace ArffTools
                 string line;
 
                 while ((line = stringReader.ReadLine()) != null)
-                    streamWriter.Write("% {0}", line);
+                    streamWriter.WriteLine("% {0}", line);
             }
             else
-                streamWriter.Write("% {0}", comment);
+                streamWriter.WriteLine("% {0}", comment);
         }
 
         /// <summary>
