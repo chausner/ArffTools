@@ -167,10 +167,10 @@ namespace ArffTools
         {
             if (disposed)
                 throw new ObjectDisposedException(GetType().FullName);
-            if (relationName == null)
-                throw new ArgumentNullException(nameof(relationName));
             if (step != 0)
                 throw new InvalidOperationException("The relation name must be the first data in the file and must appear exactly once.");
+            if (relationName == null)
+                throw new ArgumentNullException(nameof(relationName));
 
             streamWriter.WriteLine("@relation {0}", QuoteAndEscape(relationName));
             streamWriter.WriteLine();
@@ -192,10 +192,10 @@ namespace ArffTools
         {
             if (disposed)
                 throw new ObjectDisposedException(GetType().FullName);
-            if (attribute == null)
-                throw new ArgumentNullException(nameof(attribute));
             if (step != 1 && step != 2)
                 throw new InvalidOperationException("All attributes must be written after the relation name and before any instances.");
+            if (attribute == null)
+                throw new ArgumentNullException(nameof(attribute));
 
             WriteAttribute(attribute, 0);
 
@@ -336,12 +336,12 @@ namespace ArffTools
         {
             if (disposed)
                 throw new ObjectDisposedException(GetType().FullName);
+            if (step < 2)
+                throw new InvalidOperationException("The relation name and at least one attribute must have been written before any instances can be written.");
             if (instance == null)
                 throw new ArgumentNullException(nameof(instance));
             if (instance.Length != writtenAttributes.Count)
                 throw new ArgumentException("Instance does not have the same number of entries as attributes have been written.", nameof(instance));
-            if (step < 2)
-                throw new InvalidOperationException("The relation name and at least one attribute must have been written before any instances can be written.");
 
             if (step == 2)
             {
@@ -468,6 +468,9 @@ namespace ArffTools
 
                     for (int j = 0; j < relationalInstances.Length; j++)
                     {
+                        if (relationalInstances[j].Length != relationalAttributes.Count)
+                            throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
+
                         // sparse format does not seem to be supported in relational values
                         // instance weights seem to be supported in the format but they cannot be represented with an object[] alone, so we don't support them for now
                         WriteInstanceData(relationalInstances[j], false, relationalAttributes, stringWriter); 
