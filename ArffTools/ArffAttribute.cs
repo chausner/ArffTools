@@ -29,6 +29,8 @@ namespace ArffTools
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
             Name = name;
             Type = type;
@@ -50,7 +52,11 @@ namespace ArffTools
         /// </summary>
         public static readonly ArffStringAttribute String = new ArffStringAttribute();
 
-        static readonly ArffDateAttribute data = new ArffDateAttribute();
+        static readonly ArffDateAttribute date = new ArffDateAttribute();
+
+        internal ArffAttributeType()
+        {
+        }
 
         /// <summary>
         /// Nominal attribute type with the specified nominal values.
@@ -86,7 +92,7 @@ namespace ArffTools
         /// <returns></returns>
         public static ArffDateAttribute Date()
         {
-            return data;
+            return date;
         }
 
         /// <summary>
@@ -135,7 +141,7 @@ namespace ArffTools
     /// <summary>
     /// Represents the numeric attribute type.
     /// </summary>
-    public class ArffNumericAttribute : ArffAttributeType
+    public sealed class ArffNumericAttribute : ArffAttributeType
     {
         internal ArffNumericAttribute()
         {
@@ -145,17 +151,36 @@ namespace ArffTools
     /// <summary>
     /// Represents the string attribute type.
     /// </summary>
-    public class ArffStringAttribute : ArffAttributeType
+    public sealed class ArffStringAttribute : ArffAttributeType
     {
         internal ArffStringAttribute()
         {
+        }
+
+        /// <summary>
+        /// Determines whether this object is equal to another object (an <see cref="ArffStringAttribute"/> with the same name).
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            return obj is ArffStringAttribute;
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            return GetType().GetHashCode();
         }
     }
 
     /// <summary>
     /// Represents the nominal attribute type.
     /// </summary>
-    public class ArffNominalAttribute : ArffAttributeType
+    public sealed class ArffNominalAttribute : ArffAttributeType
     {
         /// <summary>
         /// Gets the nominal values of this nominal attribute type.
@@ -171,7 +196,7 @@ namespace ArffTools
     /// <summary>
     /// Represents the date attribute type.
     /// </summary>
-    public class ArffDateAttribute : ArffAttributeType
+    public sealed class ArffDateAttribute : ArffAttributeType
     {
         /// <summary>
         /// Gets the date format that this date attribute type is using.
@@ -194,7 +219,7 @@ namespace ArffTools
     /// <summary>
     /// Represents the relational attribute type.
     /// </summary>
-    public class ArffRelationalAttribute : ArffAttributeType
+    public sealed class ArffRelationalAttribute : ArffAttributeType
     {
         /// <summary>
         /// Gets the child attributes of this relational attribute type.

@@ -592,6 +592,10 @@ namespace ArffTools
             }
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="ArffWriter"/> object.
+        /// </summary>
+        /// <param name="disposing">Whether this method is called from <see cref="IDisposable.Dispose"/>.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)

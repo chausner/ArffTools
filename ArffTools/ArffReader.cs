@@ -657,6 +657,10 @@ namespace ArffTools
                 yield return instance;
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="ArffReader"/> object.
+        /// </summary>
+        /// <param name="disposing">Whether this method is called from <see cref="IDisposable.Dispose"/>.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
