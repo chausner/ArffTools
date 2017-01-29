@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace ArffTools
 {
@@ -34,6 +35,30 @@ namespace ArffTools
 
             Name = name;
             Type = type;
+        }
+
+        /// <summary>
+        /// Determines whether this object is equal to another object (an <see cref="ArffAttribute"/> with the same name and type).
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            ArffAttribute other = obj as ArffAttribute;
+
+            if (other == null)
+                return false;
+
+            return other.Name == Name && other.Type.Equals(Type);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ Type.GetHashCode();
         }
     }
 
@@ -146,6 +171,25 @@ namespace ArffTools
         internal ArffNumericAttribute()
         {
         }
+
+        /// <summary>
+        /// Determines whether this object is equal to another object (an <see cref="ArffNumericAttribute"/> with the same name).
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            return obj is ArffNumericAttribute;
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            return GetType().GetHashCode();
+        }
     }
 
     /// <summary>
@@ -191,6 +235,35 @@ namespace ArffTools
         {
             Values = new ReadOnlyCollection<string>(values);
         }
+
+        /// <summary>
+        /// Determines whether this object is equal to another object (an <see cref="ArffNominalAttribute"/> with the same name and nominal values).
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            ArffNominalAttribute other = obj as ArffNominalAttribute;
+
+            if (other == null)
+                return false;
+
+            return other.Values.SequenceEqual(Values);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            int hashCode = 19;
+
+            foreach (string value in Values)
+                hashCode = unchecked(hashCode * 31 + value.GetHashCode());
+
+            return hashCode;
+        }
     }
 
     /// <summary>
@@ -214,6 +287,30 @@ namespace ArffTools
         {
             DateFormat = dateFormat;
         }
+
+        /// <summary>
+        /// Determines whether this object is equal to another object (an <see cref="ArffDateAttribute"/> with the same name and date format).
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            ArffDateAttribute other = obj as ArffDateAttribute;
+
+            if (other == null)
+                return false;
+
+            return other.DateFormat == DateFormat;
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            return DateFormat.GetHashCode();
+        }
     }
 
     /// <summary>
@@ -229,6 +326,35 @@ namespace ArffTools
         internal ArffRelationalAttribute(IList<ArffAttribute> childAttributes)
         {
             ChildAttributes = new ReadOnlyCollection<ArffAttribute>(childAttributes);
+        }
+
+        /// <summary>
+        /// Determines whether this object is equal to another object (an <see cref="ArffRelationalAttribute"/> with the same name and child attributes).
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            ArffRelationalAttribute other = obj as ArffRelationalAttribute;
+
+            if (other == null)
+                return false;
+
+            return other.ChildAttributes.SequenceEqual(ChildAttributes);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            int hashCode = 19;
+
+            foreach (ArffAttribute attribute in ChildAttributes)
+                hashCode = unchecked(hashCode * 31 + attribute.GetHashCode());
+
+            return hashCode;
         }
     }
 }
