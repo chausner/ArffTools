@@ -274,7 +274,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values should be represented as <c>null</c>.</para>
         /// </param>
         /// <exception cref="ObjectDisposedException"/>
@@ -298,7 +298,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values should be represented as <c>null</c>.</para>
         /// </param>
         /// <param name="sparse">True, if the instance should be written in sparse format.</param>
@@ -322,7 +322,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values should be represented as <c>null</c>.</para>
         /// </param>
         /// <param name="sparse">True, if the instance should be written in sparse format.</param>
@@ -540,7 +540,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values should be represented as <c>null</c>.</para>
         /// </param>
         /// <exception cref="UnauthorizedAccessException"/>
@@ -568,7 +568,7 @@ namespace ArffTools
         /// <see cref="string"/> (string attribute),
         /// <see cref="int"/> (nominal attribute, index into nominal values array),
         /// <see cref="DateTime"/> (date attribute),
-        /// <see cref="object"/>[] (relational attribute).
+        /// <see cref="object"/>[][] (relational attribute).
         /// Missing values should be represented as <c>null</c>.</para>
         /// </param>
         /// <param name="sparse">True, if the instances should be written in sparse format.</param>
