@@ -43,3 +43,14 @@ using (ArffWriter arffWriter = new ArffWriter("iris.arff"))
     arffWriter.WriteInstance(new object[] { 5.1, 3.5, 1.4, 0.2, 0 });
 }
 ```
+Instances are represented as ```object[]``` whose elements correspond to the attribute values. ARFF attribute types are mapped to .NET types as follows:
+
+| ARFF attribute type    | .NET type        |
+|------------------------|------------------|
+| numeric, integer, real | ```double```     |
+| nominal                | ```int```        |
+| string                 | ```string```     |
+| date                   | ```DateTime```   |
+| relational             | ```object[][]``` |
+
+Missing values are represented as ```null```. Sparse instances are represented as normal instances in memory.
