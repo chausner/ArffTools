@@ -338,7 +338,7 @@ namespace ArffTools.Tests
                     new ArffAttribute("a6", ArffAttributeType.Date("yyyy-MM-dd")),
                     new ArffAttribute("a7", ArffAttributeType.Nominal("v1", "v2", "v3")) },
                 expectedInstances: new object[][] {
-                    new object[] { -6.54, 42.0, 0.0, "string", DateTime.ParseExact("2016-06-11T19:30:05", ArffDateAttribute.DefaultDateFormat, CultureInfo.InvariantCulture), DateTime.ParseExact("2016-06-11", "yyyy-MM-dd", CultureInfo.InvariantCulture), 2 }
+                    new object[] { -6.54, 42.0, 0.0, "string", DateTime.ParseExact("2016-06-11T19:30:05", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture), DateTime.ParseExact("2016-06-11", "yyyy-MM-dd", CultureInfo.InvariantCulture), 2 }
                     });
         }
 

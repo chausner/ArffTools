@@ -123,7 +123,7 @@ namespace ArffTools.Tests
 1.5,'abc,def',v3,2017-01-29T18:39:18,06:39:18,'2,-3.5\r\n3,4.5'
 ";
 
-            DateTime date = DateTime.ParseExact("2017-01-29T18:39:18", ArffDateAttribute.DefaultDateFormat, CultureInfo.InvariantCulture);
+            DateTime date = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
 
             object[] instance = { 1.5, "abc,def", 2, date, date, new[] { new object[] { 2.0, -3.5 }, new object[] { 3.0, 4.5 } } };
 
@@ -162,7 +162,7 @@ namespace ArffTools.Tests
 {1 '',3 1970-01-01T00:00:00,4 12:00:00,5 '0,0\r\n0,0'},{0.87}
 ";
 
-            DateTime date1 = DateTime.ParseExact("2017-01-29T18:39:18", ArffDateAttribute.DefaultDateFormat, CultureInfo.InvariantCulture);
+            DateTime date1 = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
             DateTime date2 = new DateTime(1970, 1, 1, 0, 0, 0);
 
             object[] instance1 = { 1.5, "abc,def", 2, date1, date1, new[] { new object[] { 2.0, -3.5 }, new object[] { 3.0, 4.5 } } };
