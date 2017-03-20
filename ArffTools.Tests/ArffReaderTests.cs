@@ -443,9 +443,8 @@ namespace ArffTools.Tests
 
             arffReader.ReadHeader();
 
-            double? instanceWeight;
 
-            arffReader.ReadInstance(out instanceWeight);
+            arffReader.ReadInstance(out double? instanceWeight);
 
             Assert.IsNull(instanceWeight);
 

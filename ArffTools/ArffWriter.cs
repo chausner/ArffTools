@@ -212,15 +212,14 @@ namespace ArffTools
                 type = "numeric";
             else if (attribute.Type == ArffAttributeType.String)
                 type = "string";
-            else if (attribute.Type is ArffNominalAttribute)
-                type = "{" + string.Join(",", ((ArffNominalAttribute)attribute.Type).Values.Select(v => QuoteAndEscape(v))) + "}";
-            else if (attribute.Type is ArffDateAttribute)
+            else if (attribute.Type is ArffNominalAttribute nominalAttribute)
+                type = "{" + string.Join(",", nominalAttribute.Values.Select(v => QuoteAndEscape(v))) + "}";
+            else if (attribute.Type is ArffDateAttribute dateAttribute)
             {
-                string dateFormat = ((ArffDateAttribute)attribute.Type).DateFormat;
-                if (dateFormat == ArffDateAttribute.DefaultDateFormat)
+                if (dateAttribute.DateFormat == ArffDateAttribute.DefaultDateFormat)
                     type = "date";
                 else
-                    type = "date " + QuoteAndEscape(dateFormat);
+                    type = "date " + QuoteAndEscape(dateAttribute.DateFormat);
             }
             else if (attribute.Type is ArffRelationalAttribute)
                 type = "relational";
@@ -232,9 +231,9 @@ namespace ArffTools
 
             streamWriter.WriteLine("@attribute {0} {1}", QuoteAndEscape(attribute.Name), type);
 
-            if (type == "relational")
+            if (attribute.Type is ArffRelationalAttribute relationalAttribute)
             {
-                foreach (ArffAttribute childAttribute in ((ArffRelationalAttribute)attribute.Type).ChildAttributes)
+                foreach (ArffAttribute childAttribute in relationalAttribute.ChildAttributes)
                     WriteAttribute(childAttribute, indent + 2);
 
                 if (indent != 0)
@@ -375,7 +374,7 @@ namespace ArffTools
 
                 if (sparse)
                 {
-                    if ((value is double && (double)value == 0.0) || (value is int && (int)value == 0))
+                    if ((value is double d && d == 0.0) || (value is int x && x == 0))
                         continue;
 
                     if (numAttributesWritten != 0)
@@ -433,29 +432,29 @@ namespace ArffTools
         {
             if (value == null)
                 textWriter.Write("?");
-            else if (value is double)
-                textWriter.Write(((double)value).ToString(CultureInfo.InvariantCulture));
-            else if (value is string)
-                textWriter.Write(QuoteAndEscape((string)value));
-            else if (value is int)
+            else if (value is double doubleValue)
+                textWriter.Write(doubleValue.ToString(CultureInfo.InvariantCulture));
+            else if (value is string stringValue)
+                textWriter.Write(QuoteAndEscape(stringValue));
+            else if (value is int nominalValue)
             {
                 ReadOnlyCollection<string> values = (attribute.Type as ArffNominalAttribute)?.Values;
 
-                if (values == null || values.Count <= (int)value)
+                if (values == null || values.Count <= nominalValue)
                     throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
 
-                textWriter.Write(QuoteAndEscape(values[(int)value]));
+                textWriter.Write(QuoteAndEscape(values[nominalValue]));
             }
-            else if (value is DateTime)
+            else if (value is DateTime dateTimeValue)
             {
                 string dateFormat = (attribute.Type as ArffDateAttribute)?.DateFormat;
 
                 if (dateFormat == null)
                     throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
 
-                textWriter.Write(QuoteAndEscape(((DateTime)value).ToString(dateFormat, CultureInfo.InvariantCulture)));
+                textWriter.Write(QuoteAndEscape(dateTimeValue.ToString(dateFormat, CultureInfo.InvariantCulture)));
             }
-            else if (value is object[][])
+            else if (value is object[][] relationalValue)
             {
                 ReadOnlyCollection<ArffAttribute> relationalAttributes = (attribute.Type as ArffRelationalAttribute)?.ChildAttributes;
 
@@ -464,18 +463,16 @@ namespace ArffTools
 
                 using (StringWriter stringWriter = new StringWriter())
                 {
-                    object[][] relationalInstances = (object[][])value;
-
-                    for (int j = 0; j < relationalInstances.Length; j++)
+                    for (int j = 0; j < relationalValue.Length; j++)
                     {
-                        if (relationalInstances[j].Length != relationalAttributes.Count)
+                        if (relationalValue[j].Length != relationalAttributes.Count)
                             throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
 
                         // sparse format does not seem to be supported in relational values
                         // instance weights seem to be supported in the format but they cannot be represented with an object[] alone, so we don't support them for now
-                        WriteInstanceData(relationalInstances[j], false, relationalAttributes, stringWriter); 
+                        WriteInstanceData(relationalValue[j], false, relationalAttributes, stringWriter); 
 
-                        if (j != relationalInstances.Length - 1)
+                        if (j != relationalValue.Length - 1)
                             stringWriter.WriteLine();
                     }
 

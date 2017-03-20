@@ -225,9 +225,7 @@ namespace ArffTools
             if (textReader == null)
                 textReader = streamReader;
 
-            bool quoted;
-
-            string token = ReadToken(skipEndOfLine, out quoted, textReader);
+            string token = ReadToken(skipEndOfLine, out bool quoted, textReader);
 
             if (endOfLine != null)
                 if (endOfLine == true && token != null)
@@ -291,9 +289,7 @@ namespace ArffTools
 
                 while (true)
                 {
-                    bool quoted;
-
-                    string value = ReadToken(out quoted, endOfLine: false);
+                    string value = ReadToken(out bool quoted, endOfLine: false);
 
                     if (!quoted && value == "}") 
                         break;
@@ -406,9 +402,7 @@ namespace ArffTools
         /// <exception cref="InvalidDataException"/>
         public object[] ReadInstance()
         {
-            double? instanceWeight;
-
-            return ReadInstance(out instanceWeight);
+            return ReadInstance(out double? instanceWeight);
         }
 
         /// <summary>
@@ -478,9 +472,7 @@ namespace ArffTools
 
                 for (int i = 0; i < instance.Length; i++)
                 {
-                    bool quoted;
-
-                    string value = ReadToken(out quoted, endOfLine: false, textReader : textReader);
+                    string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader);
 
                     instance[i] = ParseValue(value, quoted, attributes[i].Type);
 
@@ -497,9 +489,7 @@ namespace ArffTools
                     ReadToken(expectedToken: "{", endOfLine: false, quoting: false, textReader: textReader);
                     string weightToken = ReadToken(endOfLine: false, textReader: textReader);
 
-                    double weight;
-
-                    if (!double.TryParse(weightToken, NumberStyles.Float, CultureInfo.InvariantCulture, out weight))
+                    if (!double.TryParse(weightToken, NumberStyles.Float, CultureInfo.InvariantCulture, out double weight))
                         throw new InvalidDataException($"Invalid instance weight \"{weightToken}\".");
 
                     instanceWeight = weight;
@@ -531,18 +521,14 @@ namespace ArffTools
                 return instance;
 
             while (true)
-            { 
-                int index;
-
-                if (!int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+            {
+                if (!int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
                     throw new InvalidDataException($"Unexpected token \"{token}\". Expected index.");
 
                 if (index < 0 || index >= instance.Length)
                     throw new InvalidDataException($"Out-of-range index \"{token}\".");
 
-                bool quoted;
-
-                string value = ReadToken(out quoted, endOfLine: false, textReader: textReader);
+                string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader);
 
                 instance[index] = ParseValue(value, quoted, attributes[index].Type);
 
@@ -566,48 +552,38 @@ namespace ArffTools
 
             if (attributeType == ArffAttributeType.Numeric)
             {
-                double d;
-
-                if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out d))
+                if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double d))
                     throw new InvalidDataException($"Unrecognized data value: \"{value}\"");
 
                 return d;
             }
             else if (attributeType == ArffAttributeType.String)
                 return value;
-            else if (attributeType is ArffNominalAttribute)
+            else if (attributeType is ArffNominalAttribute nominalAttribute)
             {
-                int index = ((ArffNominalAttribute)attributeType).Values.IndexOf(value);
+                int index = nominalAttribute.Values.IndexOf(value);
 
                 if (index == -1)
                     throw new InvalidDataException($"Unrecognized data value: \"{value}\"");
 
                 return index;
             }
-            else if (attributeType is ArffDateAttribute)
+            else if (attributeType is ArffDateAttribute dateAttribute)
             {
-                DateTime d;
-
-                string dateFormat = ((ArffDateAttribute)attributeType).DateFormat;
-
-                if (!DateTime.TryParseExact(value, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.NoCurrentDateDefault, out d))
+                if (!DateTime.TryParseExact(value, dateAttribute.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.NoCurrentDateDefault, out DateTime d))
                     throw new InvalidDataException($"Unrecognized data value: \"{value}\"");
 
                 return d;
             }
-            else if (attributeType is ArffRelationalAttribute)
+            else if (attributeType is ArffRelationalAttribute relationalAttribute)
             {
-                ArffRelationalAttribute relationalAttribute = (ArffRelationalAttribute)attributeType;
-
                 List<object[]> relationalInstances = new List<object[]>();
 
                 using (StringReader stringReader = new StringReader(value))
                     while (true)
                     {
                         // weights for relational instances are currently discarded
-                        double? instanceWeight;
-
-                        object[] instance = ReadInstance(out instanceWeight, relationalAttribute.ChildAttributes, stringReader);
+                        object[] instance = ReadInstance(out double? instanceWeight, relationalAttribute.ChildAttributes, stringReader);
 
                         if (instance == null)
                             break;
