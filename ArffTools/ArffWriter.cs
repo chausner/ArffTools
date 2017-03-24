@@ -440,7 +440,7 @@ namespace ArffTools
             {
                 ReadOnlyCollection<string> values = (attribute.Type as ArffNominalAttribute)?.Values;
 
-                if (values == null || values.Count <= nominalValue)
+                if (values == null || nominalValue < 0 || nominalValue >= values.Count)
                     throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
 
                 textWriter.Write(QuoteAndEscape(values[nominalValue]));
