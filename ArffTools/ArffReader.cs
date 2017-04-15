@@ -93,22 +93,24 @@ namespace ArffTools
 
         private string ReadToken(bool skipEndOfLine, out bool quoted, TextReader textReader)
         {
-            char c = default(char);
-
             quoted = false;
 
-            start:            
+            start:
+
+            int c;
 
             // skip whitespace
-            while (!textReader.EndOfStream()) 
+            while (true)
             {
-                c = (char)textReader.Peek();
+                c = textReader.Peek();
 
-                if (((c != '\r' && c != '\n') || skipEndOfLine) && char.IsWhiteSpace(c))
-                    textReader.Read();
-                else
+                if (c == -1 ||
+                    !char.IsWhiteSpace((char)c) ||
+                    !skipEndOfLine && (c == '\r' || c == '\n'))
                     break;
-            } 
+
+                textReader.Read();
+            }
 
             if (c == '\r')
             {
@@ -126,18 +128,17 @@ namespace ArffTools
             {
                 do
                 {
-                    c = (char)textReader.Read();
-                    if (c == '\r' || c == '\n')
-                        break;
-                } while (!textReader.EndOfStream());
+                    c = textReader.Read();
+                } while (c != '\r' && c != '\n' && c != -1);
                 if (c == '\r' && textReader.Peek() == '\n')
                     textReader.Read();
                 if (skipEndOfLine)
                     goto start;
-                return null;
+                else
+                    return null;
             }
 
-            if (textReader.EndOfStream())
+            if (c == -1)
                 return null;
 
             StringBuilder token = new StringBuilder();
@@ -147,25 +148,27 @@ namespace ArffTools
             if (textReader.Peek() == '\'' || textReader.Peek() == '\"')
                 quoteChar = (char)textReader.Read();
 
-            while (!textReader.EndOfStream())
+            while (true)
             {
-                c = (char)textReader.Peek();
+                c = textReader.Peek();
 
-                if (c == '\r' || c == '\n')
+                if (c == -1)
+                    break;
+                else if (c == '\r' || c == '\n')
                 {
-                    if (quoteChar == null)
-                        break;
-                    else
+                    if (quoteChar != null)
                         throw new InvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
+
+                    break;
                 }
-                else if (token.Length != 0 && quoteChar == null && (char.IsWhiteSpace(c) || c == '%' || c == '{' || c == '}' || c == ','))
+                else if (token.Length != 0 && quoteChar == null && (char.IsWhiteSpace((char)c) || c == '%' || c == '{' || c == '}' || c == ','))
                     break;
 
-                c = (char)textReader.Read();
+                textReader.Read();
 
                 if (quoteChar == null)
                 {
-                    token.Append(c);
+                    token.Append((char)c);
 
                     if (c == '%' || c == '{' || c == '}' || c == ',')
                         break;
@@ -174,22 +177,23 @@ namespace ArffTools
                     break;
                 else if (c == '\\')
                 {
-                    if (textReader.EndOfStream())
+                    c = textReader.Read();
+
+                    if (c == -1)
                         throw new InvalidDataException($"Unexpected end-of-line.");
 
-                    c = (char)textReader.Read();
-                    token.Append(UnescapeChar(c));
+                    token.Append(UnescapeChar((char)c));
 
                     // the only universal character name supported is \u001E
                     if (c == 'u')
-                        if ((char)textReader.Read() != '0' ||
-                            (char)textReader.Read() != '0' ||
-                            (char)textReader.Read() != '1' ||
-                            (char)textReader.Read() != 'E')
+                        if (textReader.Read() != '0' ||
+                            textReader.Read() != '0' ||
+                            textReader.Read() != '1' ||
+                            textReader.Read() != 'E')
                             throw new InvalidDataException($"Unsupported universal character name.");
                 }
                 else
-                    token.Append(c);
+                    token.Append((char)c);
             }
 
             quoted = quoteChar != null;
@@ -435,23 +439,23 @@ namespace ArffTools
         {
             instanceWeight = null;
 
-            char c = default(char);
+            int c;
 
             // skip whitespace, comments and end-of-line
-            while (!textReader.EndOfStream())
+            while (true)
             {
-                c = (char)textReader.Peek();
+                c = textReader.Peek();
 
-                if (char.IsWhiteSpace(c))
+                if (c == -1)
+                    break;
+                else if (char.IsWhiteSpace((char)c))
                     textReader.Read();
                 else if (c == '%')
                 {
                     do
                     {
-                        c = (char)textReader.Read();
-                        if (c == '\r' || c == '\n')
-                            break;
-                    } while (!textReader.EndOfStream());
+                        c = textReader.Read();
+                    } while (c != '\r' && c != '\n' && c != -1);
                     if (c == '\r' && textReader.Peek() == '\n')
                         textReader.Read();
                 }
@@ -459,7 +463,7 @@ namespace ArffTools
                     break;
             }
 
-            if (textReader.EndOfStream())
+            if (c == -1)
                 return null;
 
             object[] instance;
