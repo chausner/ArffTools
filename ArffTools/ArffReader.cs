@@ -112,41 +112,38 @@ namespace ArffTools
                 textReader.Read();
             }
 
-            if (c == '\r')
-            {
-                textReader.Read();
-                if (textReader.Peek() == '\n')
-                    textReader.Read();
-                return null;
-            }
-            else if (c == '\n')
-            {
-                textReader.Read();
-                return null;
-            }
-            else if (c == '%') // skip comment and return end-of-line
-            {
-                do
-                {
-                    c = textReader.Read();
-                } while (c != '\r' && c != '\n' && c != -1);
-                if (c == '\r' && textReader.Peek() == '\n')
-                    textReader.Read();
-                if (skipEndOfLine)
-                    goto start;
-                else
-                    return null;
-            }
-
-            if (c == -1)
-                return null;
-
-            StringBuilder token = new StringBuilder();
-
             char? quoteChar = null;
 
-            if (textReader.Peek() == '\'' || textReader.Peek() == '\"')
-                quoteChar = (char)textReader.Read();
+            switch (c)
+            {
+                case -1:
+                    return null;
+                case '\r':
+                    textReader.Read();
+                    if (textReader.Peek() == '\n')
+                        textReader.Read();
+                    return null;
+                case '\n':
+                    textReader.Read();
+                    return null;
+                case '%': // skip comment and return end-of-line
+                    do
+                    {
+                        c = textReader.Read();
+                    } while (c != '\r' && c != '\n' && c != -1);
+                    if (c == '\r' && textReader.Peek() == '\n')
+                        textReader.Read();
+                    if (skipEndOfLine)
+                        goto start;
+                    else
+                        return null;
+                case '\'':
+                case '\"':
+                    quoteChar = (char)textReader.Read();
+                    break;
+            }
+
+            StringBuilder token = new StringBuilder();
 
             while (true)
             {
