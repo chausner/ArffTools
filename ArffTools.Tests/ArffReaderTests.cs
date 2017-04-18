@@ -221,7 +221,7 @@ namespace ArffTools.Tests
                             @attribute ""a2"" numeric
                             @attribute \\a3\\ numeric
                             @attribute '\\' numeric
-                            @attribute ""\t"" numeric
+                            @attribute ""\""\'\%\\\r\n\t\u001E"" numeric
                             @data";
 
             AssertReader(arff,
@@ -231,7 +231,7 @@ namespace ArffTools.Tests
                     new ArffAttribute("a2", ArffAttributeType.Numeric),
                     new ArffAttribute("\\\\a3\\\\", ArffAttributeType.Numeric),
                     new ArffAttribute("\\", ArffAttributeType.Numeric),
-                    new ArffAttribute("\t", ArffAttributeType.Numeric)
+                    new ArffAttribute("\"'%\\\r\n\t\u001E", ArffAttributeType.Numeric)
                 });
         }
 

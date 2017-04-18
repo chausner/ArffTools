@@ -48,6 +48,17 @@ namespace ArffTools.Tests
         }
 
         [TestMethod]
+        public void Escaping()
+        {
+            string arff = "@relation '\\\"\\'\\%\\\\\\r\\n\\t\\u001E'\r\n\r\n";
+
+            AssertWriter(arff, arffWriter =>
+            {
+                arffWriter.WriteRelationName("\"'%\\\r\n\t\u001E");
+            });
+        }
+
+        [TestMethod]
         public void SimpleAttributes()
         {
             string arff = @"@relation relationName
