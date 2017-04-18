@@ -6,6 +6,14 @@ using System.Text;
 
 namespace ArffTools
 {
+    internal enum TokenType
+    {
+        Unquoted,
+        Quoted,
+        EndOfLine,
+        EndOfFile
+    }
+
     /// <summary>
     /// Provides methods for reading ARFF (attribute-relation file format) data from a stream or file.
     /// </summary>
@@ -14,6 +22,8 @@ namespace ArffTools
         StreamReader streamReader;
 
         ArffHeader arffHeader;
+
+        int unprocessedChar = -1;
 
         bool disposed = false;
 
@@ -91,40 +101,37 @@ namespace ArffTools
             }
         }
 
-        private string ReadToken(bool skipEndOfLine, out bool quoted, TextReader textReader)
+        private string ReadToken(out TokenType tokenType, TextReader textReader)
         {
-            quoted = false;
-
-            start:
-
             int c;
 
-            // skip whitespace
-            while (true)
+            // if the last character read hasn't been processed yet, do so now
+            if (unprocessedChar == -1)
+                c = textReader.Read();
+            else
             {
-                c = textReader.Peek();
-
-                if (c == -1 ||
-                    !char.IsWhiteSpace((char)c) ||
-                    !skipEndOfLine && (c == '\r' || c == '\n'))
-                    break;
-
-                textReader.Read();
+                c = unprocessedChar;
+                unprocessedChar = -1;
             }
 
-            char? quoteChar = null;
+            // skip whitespace (except line terminators)
+            while (c != '\r' && c != '\n' && c != -1 && char.IsWhiteSpace((char)c))
+                c = textReader.Read();
+
+            int quoteChar = -1;
 
             switch (c)
             {
                 case -1:
+                    tokenType = TokenType.EndOfFile;
                     return null;
                 case '\r':
-                    textReader.Read();
                     if (textReader.Peek() == '\n')
                         textReader.Read();
+                    tokenType = TokenType.EndOfLine;
                     return null;
                 case '\n':
-                    textReader.Read();
+                    tokenType = TokenType.EndOfLine;
                     return null;
                 case '%': // skip comment and return end-of-line
                     do
@@ -133,67 +140,78 @@ namespace ArffTools
                     } while (c != '\r' && c != '\n' && c != -1);
                     if (c == '\r' && textReader.Peek() == '\n')
                         textReader.Read();
-                    if (skipEndOfLine)
-                        goto start;
-                    else
-                        return null;
+                    tokenType = TokenType.EndOfLine;
+                    return null;
                 case '\'':
                 case '\"':
-                    quoteChar = (char)textReader.Read();
+                    quoteChar = c;
+                    c = textReader.Read();
+                    if (c == -1)
+                        throw new InvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
                     break;
+                case ',':
+                case '{':
+                case '}':
+                    tokenType = TokenType.Unquoted;
+                    return Convert.ToString((char)c);
             }
 
             StringBuilder token = new StringBuilder();
 
             while (true)
             {
-                c = textReader.Peek();
+                if (quoteChar == -1)
+                    token.Append((char)c);
+                else
+                {
+                    if (c == quoteChar)
+                        break;
+                    else if (c == '\\')
+                    {
+                        c = textReader.Read();
+
+                        if (c == -1)
+                            throw new InvalidDataException($"Unexpected end-of-file.");
+
+                        // the only universal character name supported is \u001E
+                        if (c == 'u')
+                            if (textReader.Read() != '0' ||
+                                textReader.Read() != '0' ||
+                                textReader.Read() != '1' ||
+                                textReader.Read() != 'E')
+                                throw new InvalidDataException($"Unsupported universal character name.");
+
+                        token.Append(UnescapeChar((char)c));
+                    }
+                    else
+                        token.Append((char)c);
+                }
+
+                c = textReader.Read();
 
                 if (c == -1)
+                {
+                    if (quoteChar != -1)
+                        throw new InvalidDataException("Unexpected end-of-file. Expected closing quotation mark.");
+
                     break;
+                }
                 else if (c == '\r' || c == '\n')
                 {
-                    if (quoteChar != null)
+                    if (quoteChar != -1)
                         throw new InvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
 
+                    unprocessedChar = c;
                     break;
                 }
-                else if (token.Length != 0 && quoteChar == null && (char.IsWhiteSpace((char)c) || c == '%' || c == '{' || c == '}' || c == ','))
-                    break;
-
-                textReader.Read();
-
-                if (quoteChar == null)
+                else if (quoteChar == -1 && (c == ',' || c == '{' || c == '}' || c == '%' || char.IsWhiteSpace((char)c)))
                 {
-                    token.Append((char)c);
-
-                    if (c == '%' || c == '{' || c == '}' || c == ',')
-                        break;
-                }
-                else if (c == quoteChar)
+                    unprocessedChar = c;
                     break;
-                else if (c == '\\')
-                {
-                    c = textReader.Read();
-
-                    if (c == -1)
-                        throw new InvalidDataException($"Unexpected end-of-line.");
-
-                    token.Append(UnescapeChar((char)c));
-
-                    // the only universal character name supported is \u001E
-                    if (c == 'u')
-                        if (textReader.Read() != '0' ||
-                            textReader.Read() != '0' ||
-                            textReader.Read() != '1' ||
-                            textReader.Read() != 'E')
-                            throw new InvalidDataException($"Unsupported universal character name.");
                 }
-                else
-                    token.Append((char)c);
             }
 
-            quoted = quoteChar != null;
+            tokenType = quoteChar != -1 ? TokenType.Quoted : TokenType.Unquoted;
 
             return token.ToString();
         }
@@ -203,7 +221,13 @@ namespace ArffTools
             if (textReader == null)
                 textReader = streamReader;
 
-            string token = ReadToken(skipEndOfLine, out quoting, textReader);
+            string token;
+            TokenType tokenType;
+
+            do
+            {
+                token = ReadToken(out tokenType, textReader);
+            } while (skipEndOfLine && tokenType == TokenType.EndOfLine);
 
             if (endOfLine != null)
                 if (endOfLine == true && token != null)
@@ -218,6 +242,8 @@ namespace ArffTools
                 if (string.Compare(token, expectedToken, ignoreCase, CultureInfo.InvariantCulture) != 0)
                     throw new InvalidDataException($"Unexpected token \"{token}\". Expected \"{expectedToken}\".");
 
+            quoting = tokenType == TokenType.Quoted;
+
             return token;
         }
 
@@ -226,7 +252,13 @@ namespace ArffTools
             if (textReader == null)
                 textReader = streamReader;
 
-            string token = ReadToken(skipEndOfLine, out bool quoted, textReader);
+            string token;
+            TokenType tokenType;
+
+            do
+            {
+                token = ReadToken(out tokenType, textReader);
+            } while (skipEndOfLine && tokenType == TokenType.EndOfLine);
 
             if (endOfLine != null)
                 if (endOfLine == true && token != null)
@@ -244,7 +276,7 @@ namespace ArffTools
                     throw new InvalidDataException($"Unexpected token \"{token}\". Expected \"{expectedToken}\".");
 
             if (quoting != null)
-                if (quoting.Value != quoted)
+                if (quoting.Value != (tokenType == TokenType.Quoted))
                     if (token != null)
                         throw new InvalidDataException($"Incorrect quoting for token \"{token}\".");
                     else
