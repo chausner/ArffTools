@@ -5,15 +5,15 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/chausner/ArffTools/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/chausner/ArffTools</PackageProjectUrl>
     <Copyright>Copyright © Christoph Hausner 2016</Copyright>
-    <PackageTags>arff weka</PackageTags>
+    <PackageTags>arff weka data-mining machine-learning</PackageTags>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
-    <Version>1.1.1</Version>
+    <AssemblyVersion>1.1.2.0</AssemblyVersion>
+    <FileVersion>1.1.2.0</FileVersion>
+    <Version>1.1.2</Version>
     <Description>Library for reading and writing Weka attribute-relation file format (ARFF) files</Description>
     <Company></Company>
     <Authors>Christoph Hausner</Authors>
-    <PackageReleaseNotes>Missing new-line characters when writing comments in ARFF files have been fixed. AttributeType and ArffHeader classes now implement equality comparison.</PackageReleaseNotes>
+    <PackageReleaseNotes>Performance improvements for ArffReader. ArffWriter now allows nominal data in instances to be represented by enums. ArffAttribute, ArffAttributeType and ArffHeader classes now override ToString().</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
