@@ -60,6 +60,15 @@ namespace ArffTools
         {
             return Name.GetHashCode() ^ Type.GetHashCode();
         }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            return $"@attribute {ArffWriter.QuoteAndEscape(Name)} {Type}";
+        }
     }
 
     /// <summary>
@@ -190,6 +199,15 @@ namespace ArffTools
         {
             return GetType().GetHashCode();
         }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            return "numeric";
+        }
     }
 
     /// <summary>
@@ -218,6 +236,15 @@ namespace ArffTools
         public override int GetHashCode()
         {
             return GetType().GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            return "string";
         }
     }
 
@@ -263,6 +290,15 @@ namespace ArffTools
                 hashCode = unchecked(hashCode * 31 + value.GetHashCode());
 
             return hashCode;
+        }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            return "{" + string.Join(",", Values.Select(ArffWriter.QuoteAndEscape)) + "}";
         }
     }
 
@@ -311,6 +347,18 @@ namespace ArffTools
         {
             return DateFormat.GetHashCode();
         }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            if (DateFormat == DefaultDateFormat)
+                return "date";
+            else
+                return "date " + ArffWriter.QuoteAndEscape(DateFormat);
+        }
     }
 
     /// <summary>
@@ -355,6 +403,15 @@ namespace ArffTools
                 hashCode = unchecked(hashCode * 31 + attribute.GetHashCode());
 
             return hashCode;
+        }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            return "relational";
         }
     }
 }

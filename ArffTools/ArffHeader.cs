@@ -53,5 +53,14 @@ namespace ArffTools
 
             return hashCode;
         }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns>The string representation of the current object.</returns>
+        public override string ToString()
+        {
+            return $"@relation {ArffWriter.QuoteAndEscape(RelationName)} ({Attributes.Count} attribute{(Attributes.Count == 1 ? "" : "s")})";
+        }
     }
 }

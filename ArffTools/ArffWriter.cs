@@ -87,7 +87,7 @@ namespace ArffTools
             streamWriter = new StreamWriter(path, false, encoding);
         }
 
-        private string QuoteAndEscape(string s)
+        internal static string QuoteAndEscape(string s)
         {
             if (s == string.Empty)
                 return "''";
@@ -206,25 +206,7 @@ namespace ArffTools
 
         private void WriteAttribute(ArffAttribute attribute, int indent)
         {
-            string type;
-
-            if (attribute.Type == ArffAttributeType.Numeric)
-                type = "numeric";
-            else if (attribute.Type == ArffAttributeType.String)
-                type = "string";
-            else if (attribute.Type is ArffNominalAttribute nominalAttribute)
-                type = "{" + string.Join(",", nominalAttribute.Values.Select(v => QuoteAndEscape(v))) + "}";
-            else if (attribute.Type is ArffDateAttribute dateAttribute)
-            {
-                if (dateAttribute.DateFormat == ArffDateAttribute.DefaultDateFormat)
-                    type = "date";
-                else
-                    type = "date " + QuoteAndEscape(dateAttribute.DateFormat);
-            }
-            else if (attribute.Type is ArffRelationalAttribute)
-                type = "relational";
-            else
-                throw new ArgumentException("Unsupported attribute type.", nameof(attribute));
+            string type = attribute.Type.ToString();
 
             if (indent != 0)
                 streamWriter.Write(new string(' ', indent));
