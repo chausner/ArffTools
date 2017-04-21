@@ -418,8 +418,13 @@ namespace ArffTools
                 textWriter.Write(doubleValue.ToString(CultureInfo.InvariantCulture));
             else if (value is string stringValue)
                 textWriter.Write(QuoteAndEscape(stringValue));
-            else if (value is int nominalValue)
+            else if (value is int || value is Enum)
             {
+                // the cast fails if value is an enum with an underlying type other than int
+                // but checking the type via Enum.GetUnderlyingType(value.GetType()) == typeof(int) 
+                // to throw a more helpful exception is probably not worth it
+                int nominalValue = (int)value;
+
                 ReadOnlyCollection<string> values = (attribute.Type as ArffNominalAttribute)?.Values;
 
                 if (values == null || nominalValue < 0 || nominalValue >= values.Count)
