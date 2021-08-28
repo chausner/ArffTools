@@ -1,27 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/chausner/ArffTools/master/LICENSE.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/chausner/ArffTools</PackageProjectUrl>
-    <Copyright>Copyright © Christoph Hausner 2016</Copyright>
-    <PackageTags>arff weka data-mining machine-learning</PackageTags>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <AssemblyVersion>1.1.2.0</AssemblyVersion>
-    <FileVersion>1.1.2.0</FileVersion>
+    <TargetFramework>net5.0</TargetFramework>
     <Version>1.1.2</Version>
     <Description>Library for reading and writing Weka attribute-relation file format (ARFF) files</Description>
-    <Company></Company>
+    <Copyright>Copyright © Christoph Hausner 2016, 2021</Copyright>
     <Authors>Christoph Hausner</Authors>
+    <PackageProjectUrl>https://github.com/chausner/ArffTools</PackageProjectUrl>
+
+    <PackageTags>arff weka data-mining machine-learning</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    
     <PackageReleaseNotes>Performance improvements for ArffReader. ArffWriter now allows nominal data in instances to be represented by enums. ArffAttribute, ArffAttributeType and ArffHeader classes now override ToString().</PackageReleaseNotes>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\net46\ArffTools.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\net46\ArffTools.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>
