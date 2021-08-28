@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <Description>Library for reading and writing Weka attribute-relation file format (ARFF) files</Description>
     <Copyright>Copyright © Christoph Hausner 2016, 2021</Copyright>
     <Authors>Christoph Hausner</Authors>
@@ -12,7 +12,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     
-    <PackageReleaseNotes>Performance improvements for ArffReader. ArffWriter now allows nominal data in instances to be represented by enums. ArffAttribute, ArffAttributeType and ArffHeader classes now override ToString().</PackageReleaseNotes>
+    <PackageReleaseNotes>The library has been updated to target .NET 5.0 instead of .NET Framework.</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
