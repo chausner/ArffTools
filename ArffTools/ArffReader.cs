@@ -19,7 +19,7 @@ namespace ArffTools
     /// </summary>
     public class ArffReader : IDisposable
     {
-        StreamReader streamReader;
+        LineColumnTextReader streamReader;
 
         ArffHeader arffHeader;
 
@@ -35,7 +35,7 @@ namespace ArffTools
         /// <exception cref="ArgumentException"/>
         public ArffReader(Stream stream)
         {
-            streamReader = new StreamReader(stream);
+            streamReader = new LineColumnTextReader(new StreamReader(stream));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace ArffTools
         /// <exception cref="ArgumentException"/>
         public ArffReader(Stream stream, Encoding encoding)
         {
-            streamReader = new StreamReader(stream, encoding);
+            streamReader = new LineColumnTextReader(new StreamReader(stream, encoding));
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace ArffTools
         /// <exception cref="IOException"/>
         public ArffReader(string path)
         {
-            streamReader = new StreamReader(path);
+            streamReader = new LineColumnTextReader(new StreamReader(path));
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace ArffTools
         /// <exception cref="NotSupportedException"/>
         public ArffReader(string path, Encoding encoding)
         {
-            streamReader = new StreamReader(path, encoding);
+            streamReader = new LineColumnTextReader(new StreamReader(path, encoding));
         }
 
         private char UnescapeChar(char c)
@@ -147,13 +147,13 @@ namespace ArffTools
                     quoteChar = c;
                     c = textReader.Read();
                     if (c == -1)
-                        throw new InvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
+                        throw PrepareInvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
                     break;
                 case ',':
                 case '{':
                 case '}':
                     tokenType = TokenType.Unquoted;
-                    return Convert.ToString((char)c);
+                    return char.ToString((char)c);
             }
 
             StringBuilder token = new StringBuilder();
@@ -171,7 +171,7 @@ namespace ArffTools
                         c = textReader.Read();
 
                         if (c == -1)
-                            throw new InvalidDataException($"Unexpected end-of-file.");
+                            throw PrepareInvalidDataException($"Unexpected end-of-file.");
 
                         // the only universal character name supported is \u001E
                         if (c == 'u')
@@ -179,7 +179,7 @@ namespace ArffTools
                                 textReader.Read() != '0' ||
                                 textReader.Read() != '1' ||
                                 textReader.Read() != 'E')
-                                throw new InvalidDataException($"Unsupported universal character name.");
+                                throw PrepareInvalidDataException($"Unsupported universal character name.");
 
                         token.Append(UnescapeChar((char)c));
                     }
@@ -192,14 +192,14 @@ namespace ArffTools
                 if (c == -1)
                 {
                     if (quoteChar != -1)
-                        throw new InvalidDataException("Unexpected end-of-file. Expected closing quotation mark.");
+                        throw PrepareInvalidDataException("Unexpected end-of-file. Expected closing quotation mark.");
 
                     break;
                 }
                 else if (c == '\r' || c == '\n')
                 {
                     if (quoteChar != -1)
-                        throw new InvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
+                        throw PrepareInvalidDataException("Unexpected end-of-line. Expected closing quotation mark.");
 
                     unprocessedChar = c;
                     break;
@@ -231,16 +231,16 @@ namespace ArffTools
 
             if (endOfLine != null)
                 if (endOfLine == true && token != null)
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected end-of-line.");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected end-of-line.");
                 else if (endOfLine == false && token == null)
                     if (expectedToken == null)
-                        throw new InvalidDataException($"Unexpected end-of-line. Expected value.");
+                        throw PrepareInvalidDataException($"Unexpected end-of-line. Expected value.");
                     else
-                        throw new InvalidDataException($"Unexpected end-of-line. Expected token \"{expectedToken}\".");
+                        throw PrepareInvalidDataException($"Unexpected end-of-line. Expected token \"{expectedToken}\".");
 
             if (expectedToken != null)
                 if (string.Compare(token, expectedToken, ignoreCase, CultureInfo.InvariantCulture) != 0)
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected \"{expectedToken}\".");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected \"{expectedToken}\".");
 
             quoting = tokenType == TokenType.Quoted;
 
@@ -262,25 +262,25 @@ namespace ArffTools
 
             if (endOfLine != null)
                 if (endOfLine == true && token != null)
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected end-of-line.");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected end-of-line.");
                 else if (endOfLine == false && token == null)
                     if (expectedToken == null)
-                        throw new InvalidDataException($"Unexpected end-of-line. Expected value.");
+                        throw PrepareInvalidDataException($"Unexpected end-of-line. Expected value.");
                     else
-                        throw new InvalidDataException($"Unexpected end-of-line. Expected token \"{expectedToken}\".");
+                        throw PrepareInvalidDataException($"Unexpected end-of-line. Expected token \"{expectedToken}\".");
 
             if (expectedToken != null)
                 if (token == null)
-                    throw new InvalidDataException($"Unexpected end-of-line. Expected token \"{expectedToken}\".");
+                    throw PrepareInvalidDataException($"Unexpected end-of-line. Expected token \"{expectedToken}\".");
                 else if (string.Compare(token, expectedToken, ignoreCase, CultureInfo.InvariantCulture) != 0)
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected \"{expectedToken}\".");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected \"{expectedToken}\".");
 
             if (quoting != null)
                 if (quoting.Value != (tokenType == TokenType.Quoted))
                     if (token != null)
-                        throw new InvalidDataException($"Incorrect quoting for token \"{token}\".");
+                        throw PrepareInvalidDataException($"Incorrect quoting for token \"{token}\".");
                     else
-                        throw new InvalidDataException($"Unexpected end-of-line. Expected value.");
+                        throw PrepareInvalidDataException($"Unexpected end-of-line. Expected value.");
 
             return token;
         }
@@ -358,13 +358,13 @@ namespace ArffTools
                         break;
                     }
                     else
-                        throw new InvalidDataException($"Unexpected token \"{token}\". Expected \"@attribute\" or \"@end\".");
+                        throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected \"@attribute\" or \"@end\".");
                 }
 
                 attributeType = ArffAttributeType.Relational(childAttributes);
             }
             else
-                throw new InvalidDataException($"Unexpected token \"{typeString}\". Expected attribute type.");
+                throw PrepareInvalidDataException($"Unexpected token \"{typeString}\". Expected attribute type.");
 
             return new ArffAttribute(attributeName, attributeType);
         }
@@ -407,11 +407,11 @@ namespace ArffTools
                     break;
                 }
                 else
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected \"@attribute\" or \"@data\".");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected \"@attribute\" or \"@data\".");
             }
 
             if (attributes.Count == 0)
-                throw new InvalidDataException("Expected at least one \"@attribute\".");
+                throw PrepareInvalidDataException("Expected at least one \"@attribute\".");
 
             arffHeader = new ArffHeader(relationName, attributes);
 
@@ -523,7 +523,7 @@ namespace ArffTools
                     string weightToken = ReadToken(endOfLine: false, textReader: textReader);
 
                     if (!double.TryParse(weightToken, NumberStyles.Float, CultureInfo.InvariantCulture, out double weight))
-                        throw new InvalidDataException($"Invalid instance weight \"{weightToken}\".");
+                        throw PrepareInvalidDataException($"Invalid instance weight \"{weightToken}\".");
 
                     instanceWeight = weight;
 
@@ -531,7 +531,7 @@ namespace ArffTools
                     ReadToken(endOfLine: true, textReader: textReader);
                 }
                 else
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected \",\" or end-of-line.");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected \",\" or end-of-line.");
 
             return instance;
         }
@@ -556,10 +556,10 @@ namespace ArffTools
             while (true)
             {
                 if (!int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected index.");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected index.");
 
                 if (index < 0 || index >= instance.Length)
-                    throw new InvalidDataException($"Out-of-range index \"{token}\".");
+                    throw PrepareInvalidDataException($"Out-of-range index \"{token}\".");
 
                 string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader);
 
@@ -570,7 +570,7 @@ namespace ArffTools
                 if (token == "}")
                     break;
                 else if (token != ",")
-                    throw new InvalidDataException($"Unexpected token \"{token}\". Expected \",\" or \"}}\".");
+                    throw PrepareInvalidDataException($"Unexpected token \"{token}\". Expected \",\" or \"}}\".");
 
                 token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
             }
@@ -586,7 +586,7 @@ namespace ArffTools
             if (attributeType == ArffAttributeType.Numeric)
             {
                 if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double d))
-                    throw new InvalidDataException($"Unrecognized data value: \"{value}\"");
+                    throw PrepareInvalidDataException($"Unrecognized data value: \"{value}\"");
 
                 return d;
             }
@@ -597,14 +597,14 @@ namespace ArffTools
                 int index = nominalAttribute.Values.IndexOf(value);
 
                 if (index == -1)
-                    throw new InvalidDataException($"Unrecognized data value: \"{value}\"");
+                    throw PrepareInvalidDataException($"Unrecognized data value: \"{value}\"");
 
                 return index;
             }
             else if (attributeType is ArffDateAttribute dateAttribute)
             {
                 if (!DateTime.TryParseExact(value, dateAttribute.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.NoCurrentDateDefault, out DateTime d))
-                    throw new InvalidDataException($"Unrecognized data value: \"{value}\"");
+                    throw PrepareInvalidDataException($"Unrecognized data value: \"{value}\"");
 
                 return d;
             }
@@ -690,6 +690,16 @@ namespace ArffTools
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        private InvalidDataException PrepareInvalidDataException(string message)
+        {
+            InvalidDataException exception = new InvalidDataException(message + $" Line: {streamReader.Line}, column: {streamReader.Column}.");
+
+            exception.Data["Line"] = streamReader.Line;
+            exception.Data["Column"] = streamReader.Column;
+
+            return exception;
         }
     }
 }
