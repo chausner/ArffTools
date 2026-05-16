@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ArffTools.Tests/ArffTools.Tests.csproj" />
+  <Project Path="ArffTools/ArffTools.csproj" />
+</Solution>
