@@ -21,7 +21,7 @@ public class ArffReader : IDisposable
 {
     StreamReader streamReader;
 
-    ArffHeader arffHeader;
+    ArffHeader? arffHeader;
 
     int unprocessedChar = -1;
 
@@ -101,7 +101,7 @@ public class ArffReader : IDisposable
         }
     }
 
-    private string ReadToken(out TokenType tokenType, TextReader textReader)
+    private string? ReadToken(out TokenType tokenType, TextReader textReader)
     {
         int c;
 
@@ -216,12 +216,12 @@ public class ArffReader : IDisposable
         return token.ToString();
     }
 
-    private string ReadToken(out bool quoting, string expectedToken = null, bool ignoreCase = false, bool skipEndOfLine = false, bool? endOfLine = null, TextReader textReader = null)
+    private string? ReadToken(out bool quoting, string? expectedToken = null, bool ignoreCase = false, bool skipEndOfLine = false, bool? endOfLine = null, TextReader? textReader = null)
     {
         if (textReader == null)
             textReader = streamReader;
 
-        string token;
+        string? token;
         TokenType tokenType;
 
         do
@@ -247,12 +247,12 @@ public class ArffReader : IDisposable
         return token;
     }
 
-    private string ReadToken(string expectedToken = null, bool ignoreCase = false, bool skipEndOfLine = false, bool? endOfLine = null, bool? quoting = null, TextReader textReader = null)
+    private string? ReadToken(string? expectedToken = null, bool ignoreCase = false, bool skipEndOfLine = false, bool? endOfLine = null, bool? quoting = null, TextReader? textReader = null)
     {
         if (textReader == null)
             textReader = streamReader;
 
-        string token;
+        string? token;
         TokenType tokenType;
 
         do
@@ -287,8 +287,8 @@ public class ArffReader : IDisposable
 
     private ArffAttribute ReadAttribute()
     {
-        string attributeName = ReadToken(endOfLine: false);
-        string typeString = ReadToken(endOfLine: false, quoting: false);
+        string attributeName = ReadToken(endOfLine: false)!;
+        string typeString = ReadToken(endOfLine: false, quoting: false)!;
 
         ArffAttributeType attributeType;
 
@@ -306,7 +306,7 @@ public class ArffReader : IDisposable
         }
         else if (string.Equals(typeString, "date", StringComparison.OrdinalIgnoreCase))
         {
-            string dateFormat = ReadToken();
+            string? dateFormat = ReadToken();
 
             if (dateFormat == null)
                 attributeType = ArffAttributeType.Date();
@@ -322,7 +322,7 @@ public class ArffReader : IDisposable
 
             while (true)
             {
-                string value = ReadToken(out bool quoted, endOfLine: false);
+                string value = ReadToken(out bool quoted, endOfLine: false)!;
 
                 if (!quoted && value == "}") 
                     break;
@@ -343,7 +343,7 @@ public class ArffReader : IDisposable
 
             while (true)
             {
-                string token = ReadToken(skipEndOfLine: true, endOfLine: false, quoting: false);
+                string token = ReadToken(skipEndOfLine: true, endOfLine: false, quoting: false)!;
 
                 if (string.Equals(token, "@attribute", StringComparison.OrdinalIgnoreCase))
                 {
@@ -387,13 +387,13 @@ public class ArffReader : IDisposable
 
         ReadToken(expectedToken: "@relation", ignoreCase: true, skipEndOfLine: true, endOfLine: false, quoting: false);
 
-        string relationName = ReadToken(endOfLine: false);
+        string relationName = ReadToken(endOfLine: false)!;
 
         ReadToken(endOfLine: true);
 
         while (true)
         {
-            string token = ReadToken(skipEndOfLine: true, endOfLine: false, quoting: false);
+            string token = ReadToken(skipEndOfLine: true, endOfLine: false, quoting: false)!;
 
             if (string.Equals(token, "@attribute", StringComparison.OrdinalIgnoreCase))
             {
@@ -433,7 +433,7 @@ public class ArffReader : IDisposable
     /// <exception cref="ObjectDisposedException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="InvalidDataException"/>
-    public object[] ReadInstance()
+    public object?[]? ReadInstance()
     {
         return ReadInstance(out double? instanceWeight);
     }
@@ -454,7 +454,7 @@ public class ArffReader : IDisposable
     /// <exception cref="ObjectDisposedException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="InvalidDataException"/>
-    public object[] ReadInstance(out double? instanceWeight)
+    public object?[]? ReadInstance(out double? instanceWeight)
     {
         if (disposed)
             throw new ObjectDisposedException(GetType().FullName);
@@ -464,7 +464,7 @@ public class ArffReader : IDisposable
         return ReadInstance(out instanceWeight, arffHeader.Attributes, streamReader);
     }
 
-    private object[] ReadInstance(out double? instanceWeight, IReadOnlyList<ArffAttribute> attributes, TextReader textReader)
+    private object?[]? ReadInstance(out double? instanceWeight, IReadOnlyList<ArffAttribute> attributes, TextReader textReader)
     {
         instanceWeight = null;
 
@@ -495,17 +495,17 @@ public class ArffReader : IDisposable
         if (c == -1)
             return null;
 
-        object[] instance;
+        object?[] instance;
 
         if (c == '{')
             instance = ReadSparseInstance(attributes, textReader);
         else
         {
-            instance = new object[attributes.Count];
+            instance = new object?[attributes.Count];
 
             for (int i = 0; i < instance.Length; i++)
             {
-                string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader);
+                string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader)!;
 
                 instance[i] = ParseValue(value, quoted, attributes[i].Type);
 
@@ -514,13 +514,13 @@ public class ArffReader : IDisposable
             }
         }
 
-        string token = ReadToken(quoting: false, textReader: textReader);
+        string? token = ReadToken(quoting: false, textReader: textReader);
 
         if (token != null)
             if (token == ",")
             {
                 ReadToken(expectedToken: "{", endOfLine: false, quoting: false, textReader: textReader);
-                string weightToken = ReadToken(endOfLine: false, textReader: textReader);
+                string weightToken = ReadToken(endOfLine: false, textReader: textReader)!;
 
                 if (!double.TryParse(weightToken, NumberStyles.Float, CultureInfo.InvariantCulture, out double weight))
                     throw new InvalidDataException($"Invalid instance weight \"{weightToken}\".");
@@ -536,9 +536,9 @@ public class ArffReader : IDisposable
         return instance;
     }
 
-    private object[] ReadSparseInstance(IReadOnlyList<ArffAttribute> attributes, TextReader textReader)
+    private object?[] ReadSparseInstance(IReadOnlyList<ArffAttribute> attributes, TextReader textReader)
     {
-        object[] instance = new object[attributes.Count];
+        object?[] instance = new object?[attributes.Count];
 
         for (int i = 0; i < instance.Length; i++)
             if (attributes[i].Type is ArffNumericAttribute)
@@ -546,9 +546,9 @@ public class ArffReader : IDisposable
             else if (attributes[i].Type is ArffNominalAttribute)
                 instance[i] = 0;
 
-        ReadToken(expectedToken: "{", endOfLine: false, quoting: false, textReader : textReader);
+        ReadToken(expectedToken: "{", endOfLine: false, quoting: false, textReader: textReader);
 
-        string token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
+        string token = ReadToken(endOfLine: false, quoting: false, textReader: textReader)!;
 
         if (token == "}")
             return instance;
@@ -561,24 +561,24 @@ public class ArffReader : IDisposable
             if (index < 0 || index >= instance.Length)
                 throw new InvalidDataException($"Out-of-range index \"{token}\".");
 
-            string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader);
+            string value = ReadToken(out bool quoted, endOfLine: false, textReader: textReader)!;
 
             instance[index] = ParseValue(value, quoted, attributes[index].Type);
 
-            token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
+            token = ReadToken(endOfLine: false, quoting: false, textReader: textReader)!;
 
             if (token == "}")
                 break;
             else if (token != ",")
                 throw new InvalidDataException($"Unexpected token \"{token}\". Expected \",\" or \"}}\".");
 
-            token = ReadToken(endOfLine: false, quoting: false, textReader: textReader);
+            token = ReadToken(endOfLine: false, quoting: false, textReader: textReader)!;
         }
 
         return instance;
     }
 
-    private object ParseValue(string value, bool quoted, ArffAttributeType attributeType)
+    private object? ParseValue(string value, bool quoted, ArffAttributeType attributeType)
     {
         if (!quoted && value == "?")
             return null;
@@ -610,13 +610,13 @@ public class ArffReader : IDisposable
         }
         else if (attributeType is ArffRelationalAttribute relationalAttribute)
         {
-            List<object[]> relationalInstances = new List<object[]>();
+            List<object?[]> relationalInstances = new List<object?[]>();
 
             using (StringReader stringReader = new StringReader(value))
                 while (true)
                 {
                     // weights for relational instances are currently discarded
-                    object[] instance = ReadInstance(out double? instanceWeight, relationalAttribute.ChildAttributes, stringReader);
+                    object?[]? instance = ReadInstance(out double? instanceWeight, relationalAttribute.ChildAttributes, stringReader);
 
                     if (instance == null)
                         break;
@@ -638,11 +638,11 @@ public class ArffReader : IDisposable
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="InvalidDataException"/>
     /// <seealso cref="ReadInstance()"/>
-    public object[][] ReadAllInstances()
+    public object?[][] ReadAllInstances()
     {
-        List<object[]> instances = new List<object[]>();
+        List<object?[]> instances = new List<object?[]>();
 
-        object[] instance;
+        object?[]? instance;
 
         while ((instance = ReadInstance()) != null)
             instances.Add(instance);
@@ -658,9 +658,9 @@ public class ArffReader : IDisposable
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="InvalidDataException"/>
     /// <seealso cref="ReadAllInstances()"/>
-    public IEnumerable<object[]> ReadInstances()
+    public IEnumerable<object?[]> ReadInstances()
     {
-        object[] instance;
+        object?[]? instance;
 
         while ((instance = ReadInstance()) != null)
             yield return instance;
@@ -677,8 +677,8 @@ public class ArffReader : IDisposable
             if (disposing)
                 streamReader.Dispose();
 
-            streamReader = null;
-            arffHeader = null;
+            streamReader = null!;
+            arffHeader = null!;
 
             disposed = true;
         }

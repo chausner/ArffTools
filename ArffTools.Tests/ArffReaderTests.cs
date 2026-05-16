@@ -24,9 +24,9 @@ public class ArffReaderTests
 
     private class InstanceComparer : IComparer
     {
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
-            if (x is object[] ax && y is object[] ay)
+            if (x is object?[] ax && y is object?[] ay)
             {
                 if (ax.Length < ay.Length)
                     return -1;
@@ -49,7 +49,7 @@ public class ArffReaderTests
         }
     }
 
-    private void AssertReader(string arff, string expectedRelationName = null, ICollection expectedAttributes = null, object[][] expectedInstances = null)
+    private void AssertReader(string arff, string? expectedRelationName = null, ICollection? expectedAttributes = null, object?[][]? expectedInstances = null)
     {
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -61,7 +61,7 @@ public class ArffReaderTests
         if (expectedAttributes != null)
             CollectionAssert.AreEqual(expectedAttributes, arffHeader.Attributes, "Unexpected attributes.");
 
-        object[][] instances = arffReader.ReadAllInstances();
+        object?[][] instances = arffReader.ReadAllInstances();
 
         if (expectedInstances != null)
             CollectionAssert.AreEqual(expectedInstances, instances, new InstanceComparer(), "Unexpected instances.");
@@ -387,8 +387,8 @@ public class ArffReaderTests
                 new ArffAttribute("a6", ArffAttributeType.Date("yyyy-MM-dd")),
                 new ArffAttribute("a7", ArffAttributeType.Nominal("v1", "v2", "v3")),
                 new ArffAttribute("a8", ArffAttributeType.String) },
-            expectedInstances: new object[][] {
-                new object[] { null, null, null, null, null, null, null, "?" }
+            expectedInstances: new object?[][] {
+                new object?[] { null, null, null, null, null, null, null, "?" }
             });
     }
 
@@ -411,9 +411,9 @@ public class ArffReaderTests
                 new ArffAttribute("a2", ArffAttributeType.Nominal(",", "{", "}", "?")),
                 new ArffAttribute("a3", ArffAttributeType.String),
                 new ArffAttribute("a4", ArffAttributeType.String) },
-            expectedInstances: new object[][] {
-                new object[] { 0, 3, ",", " " },
-                new object[] { null, null, "?", "?" }
+            expectedInstances: new object?[][] {
+                new object?[] { 0, 3, ",", " " },
+                new object?[] { null, null, "?", "?" }
             });
     }
 

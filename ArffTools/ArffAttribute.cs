@@ -42,7 +42,7 @@ public class ArffAttribute
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is not ArffAttribute other)
             return false;
@@ -184,7 +184,7 @@ public sealed class ArffNumericAttribute : ArffAttributeType
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is ArffNumericAttribute;
     }
@@ -222,7 +222,7 @@ public sealed class ArffStringAttribute : ArffAttributeType
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is ArffStringAttribute;
     }
@@ -266,7 +266,7 @@ public sealed class ArffNominalAttribute : ArffAttributeType
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is not ArffNominalAttribute other)
             return false;
@@ -325,7 +325,7 @@ public sealed class ArffDateAttribute : ArffAttributeType
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is not ArffDateAttribute other)
             return false;
@@ -375,7 +375,7 @@ public sealed class ArffRelationalAttribute : ArffAttributeType
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is not ArffRelationalAttribute other)
             return false;

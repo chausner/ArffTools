@@ -206,7 +206,7 @@ public class ArffWriter : IDisposable
 
     private void WriteAttribute(ArffAttribute attribute, int indent)
     {
-        string type = attribute.Type.ToString();
+        string type = attribute.Type.ToString()!;
 
         if (indent != 0)
             streamWriter.Write(new string(' ', indent));
@@ -425,7 +425,7 @@ public class ArffWriter : IDisposable
             // to throw a more helpful exception is probably not worth it
             int nominalValue = (int)value;
 
-            ReadOnlyCollection<string> values = (attribute.Type as ArffNominalAttribute)?.Values;
+            ReadOnlyCollection<string>? values = (attribute.Type as ArffNominalAttribute)?.Values;
 
             if (values == null || nominalValue < 0 || nominalValue >= values.Count)
                 throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
@@ -434,7 +434,7 @@ public class ArffWriter : IDisposable
         }
         else if (value is DateTime dateTimeValue)
         {
-            string dateFormat = (attribute.Type as ArffDateAttribute)?.DateFormat;
+            string? dateFormat = (attribute.Type as ArffDateAttribute)?.DateFormat;
 
             if (dateFormat == null)
                 throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
@@ -443,7 +443,7 @@ public class ArffWriter : IDisposable
         }
         else if (value is object[][] relationalValue)
         {
-            ReadOnlyCollection<ArffAttribute> relationalAttributes = (attribute.Type as ArffRelationalAttribute)?.ChildAttributes;
+            ReadOnlyCollection<ArffAttribute>? relationalAttributes = (attribute.Type as ArffRelationalAttribute)?.ChildAttributes;
 
             if (relationalAttributes == null)
                 throw new ArgumentException("Instance is incompatible with types of written attributes.", "instance");
@@ -488,9 +488,7 @@ public class ArffWriter : IDisposable
         {
             StringReader stringReader = new StringReader(comment);
 
-            string line;
-
-            while ((line = stringReader.ReadLine()) != null)
+            while (stringReader.ReadLine() is string line)
                 streamWriter.WriteLine("% {0}", line);
         }
         else
@@ -590,8 +588,8 @@ public class ArffWriter : IDisposable
             if (disposing)
                 streamWriter.Dispose();
 
-            streamWriter = null;
-            writtenAttributes = null;
+            streamWriter = null!;
+            writtenAttributes = null!;
 
             disposed = true;
         }
