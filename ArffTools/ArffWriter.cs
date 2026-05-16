@@ -484,7 +484,7 @@ public class ArffWriter : IDisposable
         if (comment == null)
             throw new ArgumentNullException(nameof(comment));
 
-        if (comment.Contains("\r") || comment.Contains("\n"))
+        if (comment.Contains('\r') || comment.Contains('\n'))
         {
             StringReader stringReader = new StringReader(comment);
 
