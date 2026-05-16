@@ -263,7 +263,7 @@ public class ArffWriter : IDisposable
     /// <exception cref="ArgumentException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="IOException"/>
-    public void WriteInstance(object[] instance)
+    public void WriteInstance(object?[] instance)
     {
         WriteInstance(instance, false, double.NaN);
     }
@@ -288,7 +288,7 @@ public class ArffWriter : IDisposable
     /// <exception cref="ArgumentException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="IOException"/>
-    public void WriteInstance(object[] instance, bool sparse)
+    public void WriteInstance(object?[] instance, bool sparse)
     {
         WriteInstance(instance, sparse, double.NaN);
     }
@@ -313,7 +313,7 @@ public class ArffWriter : IDisposable
     /// <exception cref="ArgumentException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="IOException"/>
-    public void WriteInstance(object[] instance, bool sparse, double instanceWeight)
+    public void WriteInstance(object?[] instance, bool sparse, double instanceWeight)
     {
         if (disposed)
             throw new ObjectDisposedException(GetType().FullName);
@@ -346,13 +346,13 @@ public class ArffWriter : IDisposable
         streamWriter.WriteLine();
     }
 
-    private void WriteInstanceData(object[] instance, bool sparse, IReadOnlyList<ArffAttribute> attributes, TextWriter textWriter)
+    private void WriteInstanceData(object?[] instance, bool sparse, IReadOnlyList<ArffAttribute> attributes, TextWriter textWriter)
     {
         int numAttributesWritten = 0;
 
         for (int i = 0; i < instance.Length; i++)
         {
-            object value = instance[i];
+            object? value = instance[i];
 
             if (sparse)
             {
@@ -383,8 +383,8 @@ public class ArffWriter : IDisposable
     /// <exception cref="ArgumentException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="IOException"/>
-    /// <seealso cref="WriteInstance(object[])"/>
-    public void WriteAllInstances(IEnumerable<object[]> instances)
+    /// <seealso cref="WriteInstance(object?[])"/>
+    public void WriteAllInstances(IEnumerable<object?[]> instances)
     {
         WriteAllInstances(instances, false);
     }
@@ -400,17 +400,17 @@ public class ArffWriter : IDisposable
     /// <exception cref="ArgumentException"/>
     /// <exception cref="InvalidOperationException"/>
     /// <exception cref="IOException"/>
-    /// <seealso cref="WriteInstance(object[], bool)"/>
-    public void WriteAllInstances(IEnumerable<object[]> instances, bool sparse)
+    /// <seealso cref="WriteInstance(object?[], bool)"/>
+    public void WriteAllInstances(IEnumerable<object?[]> instances, bool sparse)
     {
         if (instances == null)
             throw new ArgumentNullException(nameof(instances));
 
-        foreach (object[] instance in instances)
+        foreach (object?[] instance in instances)
             WriteInstance(instance, sparse);
     }
 
-    private void WriteValue(object value, ArffAttribute attribute, TextWriter textWriter)
+    private void WriteValue(object? value, ArffAttribute attribute, TextWriter textWriter)
     {
         if (value == null)
             textWriter.Write("?");
@@ -441,7 +441,7 @@ public class ArffWriter : IDisposable
 
             textWriter.Write(QuoteAndEscape(dateTimeValue.ToString(dateFormat, CultureInfo.InvariantCulture)));
         }
-        else if (value is object[][] relationalValue)
+        else if (value is object?[][] relationalValue)
         {
             ReadOnlyCollection<ArffAttribute>? relationalAttributes = (attribute.Type as ArffRelationalAttribute)?.ChildAttributes;
 
@@ -532,7 +532,7 @@ public class ArffWriter : IDisposable
     /// <exception cref="IOException"/>
     /// <exception cref="PathTooLongException"/>
     /// <exception cref="System.Security.SecurityException"/>
-    public static void Write(string path, string relationName, IEnumerable<ArffAttribute> attributes, IEnumerable<object[]> instances)
+    public static void Write(string path, string relationName, IEnumerable<ArffAttribute> attributes, IEnumerable<object?[]> instances)
     {
         Write(path, relationName, attributes, instances, false);
     }
@@ -561,7 +561,7 @@ public class ArffWriter : IDisposable
     /// <exception cref="IOException"/>
     /// <exception cref="PathTooLongException"/>
     /// <exception cref="System.Security.SecurityException"/>
-    public static void Write(string path, string relationName, IEnumerable<ArffAttribute> attributes, IEnumerable<object[]> instances, bool sparse)
+    public static void Write(string path, string relationName, IEnumerable<ArffAttribute> attributes, IEnumerable<object?[]> instances, bool sparse)
     {
         if (attributes == null)
             throw new ArgumentNullException(nameof(attributes));

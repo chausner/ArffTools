@@ -218,7 +218,7 @@ public class ArffReaderTests
                 new ArffAttribute("a2", ArffAttributeType.String)
             },
             expectedInstances: [
-                new object[] { 1.0, "abc" },
+                [1.0, "abc"],
                 [2.0, "def%"]
             ]);
     }
@@ -359,7 +359,7 @@ public class ArffReaderTests
                 new ArffAttribute("a7", ArffAttributeType.Nominal("v1", "v2", "v3")) },
             expectedInstances: [
                 [-6.54, 42.0, 0.0, "string", DateTime.ParseExact("2016-06-11T19:30:05", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture), DateTime.ParseExact("2016-06-11", "yyyy-MM-dd", CultureInfo.InvariantCulture), 2]
-                ]);
+            ]);
     }
 
     [TestMethod]
@@ -387,7 +387,7 @@ public class ArffReaderTests
                         new ArffAttribute("a4", ArffAttributeType.String),
                         new ArffAttribute("a5", ArffAttributeType.Nominal("v4", "v5", "v6")))))) },
             expectedInstances: [
-                [new object[][] { [0, new object[][] { ["abc", 2], ["def", 1] }], [1, new object[][] { ["ghi", 0], ["jkl", 2] }] }]
+                [new object?[][] { [0, new object?[][] { ["abc", 2], ["def", 1] }], [1, new object?[][] { ["ghi", 0], ["jkl", 2] }] }]
             ]);
     }
 

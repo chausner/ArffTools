@@ -18,18 +18,19 @@ Reading ARFF files:
 ```csharp
 using (ArffReader arffReader = new ArffReader("glass.arff"))
 {
-    ArffHeader header = arffReader.ReadHeader();    
-    object[] instance;    
-    while ((instance = arffReader.ReadInstance()) != null)
+    ArffHeader header = arffReader.ReadHeader();
+    while (arffReader.ReadInstance() is object?[] instance)
     {
         // process instance
     }    
 }
 ```
+
 Reading all instances at a time:
 ```csharp
-object[][] instances = arffReader.ReadAllInstances();
+object?[][] instances = arffReader.ReadAllInstances();
 ```
+
 Writing ARFF files:
 ```csharp
 using (ArffWriter arffWriter = new ArffWriter("iris.arff"))
@@ -40,17 +41,18 @@ using (ArffWriter arffWriter = new ArffWriter("iris.arff"))
     arffWriter.WriteAttribute(new ArffAttribute("petallength", ArffAttributeType.Numeric));
     arffWriter.WriteAttribute(new ArffAttribute("petalwidth", ArffAttributeType.Numeric));
     arffWriter.WriteAttribute(new ArffAttribute("class", ArffAttributeType.Nominal("Iris-setosa", "Iris-versicolor", "Iris-virginica")));
-    arffWriter.WriteInstance(new object[] { 5.1, 3.5, 1.4, 0.2, 0 });
+    arffWriter.WriteInstance(new object?[] { 5.1, 3.5, 1.4, 0.2, 0 });
 }
 ```
-Instances are represented as ```object[]``` whose elements correspond to the attribute values. ARFF attribute types are mapped to .NET types as follows:
 
-| ARFF attribute type    | .NET type        |
-|------------------------|------------------|
-| numeric, integer, real | ```double```     |
-| nominal                | ```int```        |
-| string                 | ```string```     |
-| date                   | ```DateTime```   |
-| relational             | ```object[][]``` |
+Instances are represented as ```object?[]``` whose elements correspond to the attribute values. ARFF attribute types are mapped to .NET types as follows:
 
-Missing values are represented as ```null```. Sparse instances are represented as normal instances in memory.
+| ARFF attribute type    | .NET type         |
+|------------------------|-------------------|
+| numeric, integer, real | ```double```      |
+| nominal                | ```int```         |
+| string                 | ```string```      |
+| date                   | ```DateTime```    |
+| relational             | ```object?[][]``` |
+
+Missing values are represented as ```null```. Sparse instances are represented as normal (dense) instances in memory.

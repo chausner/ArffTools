@@ -151,7 +151,7 @@ public class ArffWriterTests
 
         DateTime date = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
 
-        object[] instance = [1.5, "abc,def", 2, date, date, new[] { new object[] { 2.0, -3.5 }, [3.0, 4.5] }];
+        object?[] instance = [1.5, "abc,def", 2, date, date, new[] { new object?[] { 2.0, -3.5 }, [3.0, 4.5] }];
 
         AssertWriter(arff, arffWriter =>
         {
@@ -193,8 +193,8 @@ public class ArffWriterTests
         DateTime date1 = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
         DateTime date2 = new DateTime(1970, 1, 1, 0, 0, 0);
 
-        object[] instance1 = [1.5, "abc,def", 2, date1, date1, new[] { new object[] { 2.0, -3.5 }, [3.0, 4.5] }];
-        object[] instance2 = [0.0, string.Empty, 0, date2, date2, new[] { new object[] { 0.0, 0.0 }, [0.0, 0.0] }];
+        object?[] instance1 = [1.5, "abc,def", 2, date1, date1, new[] { new object?[] { 2.0, -3.5 }, [3.0, 4.5] }];
+        object?[] instance2 = [0.0, string.Empty, 0, date2, date2, new[] { new object?[] { 0.0, 0.0 }, [0.0, 0.0] }];
 
         AssertWriter(arff, arffWriter =>
         {
@@ -233,7 +233,7 @@ public class ArffWriterTests
 
             """;
 
-        object[] instance = [new object[][] { [1.0, new object[][] { [0, 2.0], [1, 3.0] }, "abc"], [4.0, new object[][] { [2, 5.0], [0, 6.0] }, "def"] }, 7.0];
+        object?[] instance = [new object?[][] { [1.0, new object?[][] { [0, 2.0], [1, 3.0] }, "abc"], [4.0, new object?[][] { [2, 5.0], [0, 6.0] }, "def"] }, 7.0];
 
         AssertWriter(arff, arffWriter =>
         {
