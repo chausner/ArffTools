@@ -91,7 +91,6 @@ namespace ArffTools.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidDataException))]
         public void MissingRelationName()
         {
             string arff = @"@attribute a1 numeric
@@ -99,11 +98,10 @@ namespace ArffTools.Tests
 
             ArffReader arffReader = CreateArffReader(arff);
 
-            ArffHeader arffHeader = arffReader.ReadHeader();
+            Assert.Throws<InvalidDataException>(() => arffReader.ReadHeader());
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidDataException))]
         public void MissingAttributes()
         {
             string arff = @"@relation relationName
@@ -111,11 +109,10 @@ namespace ArffTools.Tests
 
             ArffReader arffReader = CreateArffReader(arff);
 
-            ArffHeader arffHeader = arffReader.ReadHeader();
+            Assert.Throws<InvalidDataException>(() => arffReader.ReadHeader());
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidDataException))]
         public void MissingData()
         {
             string arff = @"@relation relationName
@@ -124,7 +121,7 @@ namespace ArffTools.Tests
 
             ArffReader arffReader = CreateArffReader(arff);
 
-            ArffHeader arffHeader = arffReader.ReadHeader();
+            Assert.Throws<InvalidDataException>(() => arffReader.ReadHeader());
         }
 
         [TestMethod]
@@ -272,7 +269,6 @@ namespace ArffTools.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void ReadHeaderTwice()
         {
             string arff = @"@relation relationName
@@ -281,12 +277,11 @@ namespace ArffTools.Tests
 
             ArffReader arffReader = CreateArffReader(arff);
 
-            arffReader.ReadHeader();
-            arffReader.ReadHeader();
+            arffReader.ReadHeader(); 
+            Assert.Throws<InvalidOperationException>(() => arffReader.ReadHeader());
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void ReadInstanceBeforeHeader()
         {
             string arff = @"@relation relationName
@@ -295,7 +290,7 @@ namespace ArffTools.Tests
 
             ArffReader arffReader = CreateArffReader(arff);
 
-            arffReader.ReadInstance();
+            Assert.Throws<InvalidOperationException>(() => arffReader.ReadInstance());
         }
 
         [TestMethod]

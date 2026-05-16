@@ -25,6 +25,15 @@ namespace ArffTools.Tests
             }
         }
 
+        private void AssertWriterThrows<TException>(Action<ArffWriter> action) where TException : Exception
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            using (ArffWriter arffWriter = new ArffWriter(memoryStream))
+            {
+                Assert.Throws<TException>(() => action(arffWriter));
+            }
+        }
+
         [TestMethod]
         public void RelationName()
         {
@@ -262,48 +271,43 @@ namespace ArffTools.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void WriteRelationNameTwice()
         {
-            AssertWriter(null, arffWriter => {
+            AssertWriterThrows<InvalidOperationException>(arffWriter => {
                 arffWriter.WriteRelationName("relationName1");
                 arffWriter.WriteRelationName("relationName2");
             });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void WriteAttributeBeforeRelationName()
         {
-            AssertWriter(null, arffWriter => {
+            AssertWriterThrows<InvalidOperationException>(arffWriter => {
                 arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
             });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void WriteInstanceBeforeRelationName()
         {
-            AssertWriter(null, arffWriter => {
+            AssertWriterThrows<InvalidOperationException>(arffWriter => {
                 arffWriter.WriteInstance(new object[] { 1.0 });
             });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void WriteInstanceBeforeAttribute()
         {
-            AssertWriter(null, arffWriter => {
+            AssertWriterThrows<InvalidOperationException>(arffWriter => {
                 arffWriter.WriteRelationName("relationName");
                 arffWriter.WriteInstance(new object[] { 1.0 });
             });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void WriteRelationNameAfterInstance()
         {
-            AssertWriter(null, arffWriter => {
+            AssertWriterThrows<InvalidOperationException>(arffWriter => {
                 arffWriter.WriteRelationName("relationName");
                 arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
                 arffWriter.WriteInstance(new object[] { 1.0 });
@@ -312,10 +316,9 @@ namespace ArffTools.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void WriteAttributeAfterInstance()
         {
-            AssertWriter(null, arffWriter => {
+            AssertWriterThrows<InvalidOperationException>(arffWriter => {
                 arffWriter.WriteRelationName("relationName");
                 arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
                 arffWriter.WriteInstance(new object[] { 1.0 });
