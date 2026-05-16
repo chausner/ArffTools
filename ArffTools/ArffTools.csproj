@@ -12,9 +12,16 @@
     <Copyright>Copyright © Christoph Hausner 2016, 2021, 2026</Copyright>
     <Authors>Christoph Hausner</Authors>
     <PackageProjectUrl>https://github.com/chausner/ArffTools</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chausner/ArffTools</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>arff weka data-mining machine-learning</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>The library has been updated to target .NET 8.0. Nullable reference type annotations have been added.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
