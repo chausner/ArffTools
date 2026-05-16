@@ -145,7 +145,7 @@ public class ArffWriterTests
 
         DateTime date = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
 
-        object[] instance = { 1.5, "abc,def", 2, date, date, new[] { new object[] { 2.0, -3.5 }, new object[] { 3.0, 4.5 } } };
+        object[] instance = [1.5, "abc,def", 2, date, date, new[] { new object[] { 2.0, -3.5 }, [3.0, 4.5] }];
 
         AssertWriter(arff, arffWriter =>
         {
@@ -185,8 +185,8 @@ public class ArffWriterTests
         DateTime date1 = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
         DateTime date2 = new DateTime(1970, 1, 1, 0, 0, 0);
 
-        object[] instance1 = { 1.5, "abc,def", 2, date1, date1, new[] { new object[] { 2.0, -3.5 }, new object[] { 3.0, 4.5 } } };
-        object[] instance2 = { 0.0, string.Empty, 0, date2, date2, new[] { new object[] { 0.0, 0.0 }, new object[] { 0.0, 0.0 } } };
+        object[] instance1 = [1.5, "abc,def", 2, date1, date1, new[] { new object[] { 2.0, -3.5 }, [3.0, 4.5] }];
+        object[] instance2 = [0.0, string.Empty, 0, date2, date2, new[] { new object[] { 0.0, 0.0 }, [0.0, 0.0] }];
 
         AssertWriter(arff, arffWriter =>
         {
@@ -223,7 +223,7 @@ public class ArffWriterTests
 '1,\'v1,2\\r\\nv2,3\',abc\r\n4,\'v3,5\\r\\nv1,6\',def',7
 ";
 
-        object[] instance = { new object[][] { new object[] { 1.0, new object[][] { new object[] { 0, 2.0 }, new object[] { 1, 3.0 } }, "abc" }, new object[] { 4.0, new object[][] { new object[] { 2, 5.0 }, new object[] { 0, 6.0 } }, "def" } }, 7.0 };
+        object[] instance = [new object[][] { [1.0, new object[][] { [0, 2.0], [1, 3.0] }, "abc"], [4.0, new object[][] { [2, 5.0], [0, 6.0] }, "def"] }, 7.0];
 
         AssertWriter(arff, arffWriter =>
         {
@@ -264,16 +264,17 @@ public class ArffWriterTests
             arffWriter.WriteComment("comment in header");
             arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
             arffWriter.WriteComment("multi-line comment 1\nmulti-line comment 2\r\nmulti-line comment 3");
-            arffWriter.WriteInstance(new object[] { 1.0 });
+            arffWriter.WriteInstance([1.0]);
             arffWriter.WriteComment("comment between instances");
-            arffWriter.WriteInstance(new object[] { 2.0 });
+            arffWriter.WriteInstance([2.0]);
         });
     }
 
     [TestMethod]
     public void WriteRelationNameTwice()
     {
-        AssertWriterThrows<InvalidOperationException>(arffWriter => {
+        AssertWriterThrows<InvalidOperationException>(arffWriter =>
+        {
             arffWriter.WriteRelationName("relationName1");
             arffWriter.WriteRelationName("relationName2");
         });
@@ -282,7 +283,8 @@ public class ArffWriterTests
     [TestMethod]
     public void WriteAttributeBeforeRelationName()
     {
-        AssertWriterThrows<InvalidOperationException>(arffWriter => {
+        AssertWriterThrows<InvalidOperationException>(arffWriter =>
+        {
             arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
         });
     }
@@ -290,27 +292,30 @@ public class ArffWriterTests
     [TestMethod]
     public void WriteInstanceBeforeRelationName()
     {
-        AssertWriterThrows<InvalidOperationException>(arffWriter => {
-            arffWriter.WriteInstance(new object[] { 1.0 });
+        AssertWriterThrows<InvalidOperationException>(arffWriter =>
+        {
+            arffWriter.WriteInstance([1.0]);
         });
     }
 
     [TestMethod]
     public void WriteInstanceBeforeAttribute()
     {
-        AssertWriterThrows<InvalidOperationException>(arffWriter => {
+        AssertWriterThrows<InvalidOperationException>(arffWriter =>
+        {
             arffWriter.WriteRelationName("relationName");
-            arffWriter.WriteInstance(new object[] { 1.0 });
+            arffWriter.WriteInstance([1.0]);
         });
     }
 
     [TestMethod]
     public void WriteRelationNameAfterInstance()
     {
-        AssertWriterThrows<InvalidOperationException>(arffWriter => {
+        AssertWriterThrows<InvalidOperationException>(arffWriter =>
+        {
             arffWriter.WriteRelationName("relationName");
             arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
-            arffWriter.WriteInstance(new object[] { 1.0 });
+            arffWriter.WriteInstance([1.0]);
             arffWriter.WriteRelationName("relationName");
         });
     }
@@ -318,10 +323,11 @@ public class ArffWriterTests
     [TestMethod]
     public void WriteAttributeAfterInstance()
     {
-        AssertWriterThrows<InvalidOperationException>(arffWriter => {
+        AssertWriterThrows<InvalidOperationException>(arffWriter =>
+        {
             arffWriter.WriteRelationName("relationName");
             arffWriter.WriteAttribute(new ArffAttribute("a1", ArffAttributeType.Numeric));
-            arffWriter.WriteInstance(new object[] { 1.0 });
+            arffWriter.WriteInstance([1.0]);
             arffWriter.WriteAttribute(new ArffAttribute("a2", ArffAttributeType.Numeric));
         });
     }
