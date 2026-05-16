@@ -70,18 +70,20 @@ public class ArffWriterTests
     [TestMethod]
     public void SimpleAttributes()
     {
-        string arff = @"@relation relationName
+        string arff = """
+            @relation relationName
 
-@attribute a1 numeric
-@attribute a2 string
-@attribute a3 {v1,v2,v3}
-@attribute a4 date
-@attribute a5 date hh:mm:ss
-@attribute a6 relational
-  @attribute a7 numeric
-  @attribute a8 string
-@end a6
-";
+            @attribute a1 numeric
+            @attribute a2 string
+            @attribute a3 {v1,v2,v3}
+            @attribute a4 date
+            @attribute a5 date hh:mm:ss
+            @attribute a6 relational
+              @attribute a7 numeric
+              @attribute a8 string
+            @end a6
+
+            """;
 
         AssertWriter(arff, arffWriter =>
         {
@@ -100,17 +102,19 @@ public class ArffWriterTests
     [TestMethod]
     public void NestedRelationalAttributes()
     {
-        string arff = @"@relation relationName
+        string arff = """
+            @relation relationName
 
-@attribute a1 relational
-  @attribute a2 numeric
-  @attribute a3 relational
-    @attribute a4 string
-    @attribute a5 numeric
-  @end a3
-  @attribute a4 string
-@end a1
-";
+            @attribute a1 relational
+              @attribute a2 numeric
+              @attribute a3 relational
+                @attribute a4 string
+                @attribute a5 numeric
+              @end a3
+              @attribute a4 string
+            @end a1
+
+            """;
 
         AssertWriter(arff, arffWriter =>
         {
@@ -127,21 +131,23 @@ public class ArffWriterTests
     [TestMethod]
     public void InstancesWrittenCorrectly()
     {
-        string arff = @"@relation relationName
+        string arff = """
+            @relation relationName
 
-@attribute a1 numeric
-@attribute a2 string
-@attribute a3 {v1,v2,v3}
-@attribute a4 date
-@attribute a5 date hh:mm:ss
-@attribute a6 relational
-  @attribute a7 numeric
-  @attribute a8 numeric
-@end a6
+            @attribute a1 numeric
+            @attribute a2 string
+            @attribute a3 {v1,v2,v3}
+            @attribute a4 date
+            @attribute a5 date hh:mm:ss
+            @attribute a6 relational
+              @attribute a7 numeric
+              @attribute a8 numeric
+            @end a6
 
-@data
-1.5,'abc,def',v3,2017-01-29T18:39:18,06:39:18,'2,-3.5\r\n3,4.5'
-";
+            @data
+            1.5,'abc,def',v3,2017-01-29T18:39:18,06:39:18,'2,-3.5\r\n3,4.5'
+
+            """;
 
         DateTime date = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
 
@@ -165,22 +171,24 @@ public class ArffWriterTests
     [TestMethod]
     public void SparseInstancesWithInstanceWeightsWrittenCorrectly()
     {
-        string arff = @"@relation relationName
+        string arff = """
+            @relation relationName
 
-@attribute a1 numeric
-@attribute a2 string
-@attribute a3 {v1,v2,v3}
-@attribute a4 date
-@attribute a5 date hh:mm:ss
-@attribute a6 relational
-  @attribute a7 numeric
-  @attribute a8 numeric
-@end a6
+            @attribute a1 numeric
+            @attribute a2 string
+            @attribute a3 {v1,v2,v3}
+            @attribute a4 date
+            @attribute a5 date hh:mm:ss
+            @attribute a6 relational
+              @attribute a7 numeric
+              @attribute a8 numeric
+            @end a6
 
-@data
-{0 1.5,1 'abc,def',2 v3,3 2017-01-29T18:39:18,4 06:39:18,5 '2,-3.5\r\n3,4.5'},{0.44}
-{1 '',3 1970-01-01T00:00:00,4 12:00:00,5 '0,0\r\n0,0'},{0.87}
-";
+            @data
+            {0 1.5,1 'abc,def',2 v3,3 2017-01-29T18:39:18,4 06:39:18,5 '2,-3.5\r\n3,4.5'},{0.44}
+            {1 '',3 1970-01-01T00:00:00,4 12:00:00,5 '0,0\r\n0,0'},{0.87}
+
+            """;
 
         DateTime date1 = DateTime.ParseExact("2017-01-29T18:39:18", "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
         DateTime date2 = new DateTime(1970, 1, 1, 0, 0, 0);
@@ -207,21 +215,23 @@ public class ArffWriterTests
     [TestMethod]
     public void NestedRelationalValues()
     {
-        string arff = @"@relation relationName
+        string arff = """
+            @relation relationName
 
-@attribute a1 relational
-  @attribute a2 numeric
-  @attribute a3 relational
-    @attribute a4 {v1,v2,v3}
-    @attribute a5 numeric
-  @end a3
-  @attribute a6 string
-@end a1
-@attribute a7 numeric
+            @attribute a1 relational
+              @attribute a2 numeric
+              @attribute a3 relational
+                @attribute a4 {v1,v2,v3}
+                @attribute a5 numeric
+              @end a3
+              @attribute a6 string
+            @end a1
+            @attribute a7 numeric
 
-@data
-'1,\'v1,2\\r\\nv2,3\',abc\r\n4,\'v3,5\\r\\nv1,6\',def',7
-";
+            @data
+            '1,\'v1,2\\r\\nv2,3\',abc\r\n4,\'v3,5\\r\\nv1,6\',def',7
+
+            """;
 
         object[] instance = [new object[][] { [1.0, new object[][] { [0, 2.0], [1, 3.0] }, "abc"], [4.0, new object[][] { [2, 5.0], [0, 6.0] }, "def"] }, 7.0];
 
@@ -242,20 +252,22 @@ public class ArffWriterTests
     [TestMethod]
     public void CommentsWrittenCorrectly()
     {
-        string arff = @"% comment before header
-@relation relationName
+        string arff = """
+            % comment before header
+            @relation relationName
 
-% comment in header
-@attribute a1 numeric
-% multi-line comment 1
-% multi-line comment 2
-% multi-line comment 3
+            % comment in header
+            @attribute a1 numeric
+            % multi-line comment 1
+            % multi-line comment 2
+            % multi-line comment 3
 
-@data
-1
-% comment between instances
-2
-";
+            @data
+            1
+            % comment between instances
+            2
+
+            """;
 
         AssertWriter(arff, arffWriter =>
         {

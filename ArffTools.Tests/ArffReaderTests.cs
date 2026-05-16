@@ -70,9 +70,11 @@ public class ArffReaderTests
     [TestMethod]
     public void RelationNameReadCorrectly()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @data
+            """;
 
         AssertReader(arff, expectedRelationName: "relationName");
     }
@@ -80,9 +82,11 @@ public class ArffReaderTests
     [TestMethod]
     public void QuotedRelationNameReadCorrectly()
     {
-        string arff = @"@relation 'relation\\\tName'
-                            @attribute a1 numeric
-                            @data";
+        string arff = """
+            @relation 'relation\\\tName'
+            @attribute a1 numeric
+            @data
+            """;
 
         AssertReader(arff, expectedRelationName: "relation\\\tName");
     }
@@ -90,8 +94,10 @@ public class ArffReaderTests
     [TestMethod]
     public void MissingRelationName()
     {
-        string arff = @"@attribute a1 numeric
-                            @data";
+        string arff = """
+            @attribute a1 numeric
+            @data
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -101,8 +107,10 @@ public class ArffReaderTests
     [TestMethod]
     public void MissingAttributes()
     {
-        string arff = @"@relation relationName
-                            @data";
+        string arff = """
+            @relation relationName
+            @data
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -112,9 +120,11 @@ public class ArffReaderTests
     [TestMethod]
     public void MissingData()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            ";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -124,9 +134,11 @@ public class ArffReaderTests
     [TestMethod]
     public void KeywordCaseInsensitivity()
     {
-        string arff = @"@RElatION relationName
-                            @ATTRiBUTE a1 nuMERic
-                            @DaTa";
+        string arff = """
+            @RElatION relationName
+            @ATTRiBUTE a1 nuMERic
+            @DaTa
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -169,9 +181,11 @@ public class ArffReaderTests
     [TestMethod]
     public void EmptyNominalAttribute()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 {}
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute a1 {}
+            @data
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -183,17 +197,19 @@ public class ArffReaderTests
     [TestMethod]
     public void Comments()
     {
-        string arff = @"% comment before header
-                            @relation relationName
-                            % comment in header % comment in comment
-                            @attribute a1 numeric%comment at end-of-line
-                            @attribute a2 string
-                            @data % comment at end-of-line
-                            % comment between instances
-                            1,abc% comment at end-of-line
-                            % comment between instances
-                            2,'def\%'
-                            % comment at end-of-file";
+        string arff = """
+            % comment before header
+            @relation relationName
+            % comment in header % comment in comment
+            @attribute a1 numeric%comment at end-of-line
+            @attribute a2 string
+            @data % comment at end-of-line
+            % comment between instances
+            1,abc% comment at end-of-line
+            % comment between instances
+            2,'def\%'
+            % comment at end-of-file
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -210,13 +226,15 @@ public class ArffReaderTests
     [TestMethod]
     public void StringQuotingAndEscaping()
     {
-        string arff = @"@relation relationName
-                            @attribute 'a1' numeric
-                            @attribute ""a2"" numeric
-                            @attribute \\a3\\ numeric
-                            @attribute '\\' numeric
-                            @attribute ""\""\'\%\\\r\n\t\u001E"" numeric
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute 'a1' numeric
+            @attribute "a2" numeric
+            @attribute \\a3\\ numeric
+            @attribute '\\' numeric
+            @attribute "\"\'\%\\\r\n\t\u001E" numeric
+            @data
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -232,21 +250,23 @@ public class ArffReaderTests
     [TestMethod]
     public void AttributesReadCorrectly()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @attribute a2 integer
-                            @attribute a3 real
-                            @attribute a4 string
-                            @attribute a5 date
-                            @attribute a6 date yyyy-MM-dd
-                            @attribute a7 {v1,'v2',""v3""}
-                            @attribute a8 relational
-                              @attribute a9 numeric
-                              @attribute a10 relational
-                                @attribute a11 string
-                              @end a10
-                            @end a8
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @attribute a2 integer
+            @attribute a3 real
+            @attribute a4 string
+            @attribute a5 date
+            @attribute a6 date yyyy-MM-dd
+            @attribute a7 {v1,'v2',"v3"}
+            @attribute a8 relational
+              @attribute a9 numeric
+              @attribute a10 relational
+                @attribute a11 string
+              @end a10
+            @end a8
+            @data
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -268,9 +288,11 @@ public class ArffReaderTests
     [TestMethod]
     public void ReadHeaderTwice()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @data
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -281,9 +303,11 @@ public class ArffReaderTests
     [TestMethod]
     public void ReadInstanceBeforeHeader()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @data
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -293,9 +317,11 @@ public class ArffReaderTests
     [TestMethod]
     public void NoInstances()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @data";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @data
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
@@ -308,16 +334,18 @@ public class ArffReaderTests
     [TestMethod]
     public void InstancesReadCorrectly()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @attribute a2 integer
-                            @attribute a3 real
-                            @attribute a4 string
-                            @attribute a5 date
-                            @attribute a6 date yyyy-MM-dd
-                            @attribute a7 {v1,'v2',""v3""}
-                            @data
-                            -6.54,42,0.0,string,2016-06-11T19:30:05,2016-06-11,v3";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @attribute a2 integer
+            @attribute a3 real
+            @attribute a4 string
+            @attribute a5 date
+            @attribute a6 date yyyy-MM-dd
+            @attribute a7 {v1,'v2',"v3"}
+            @data
+            -6.54,42,0.0,string,2016-06-11T19:30:05,2016-06-11,v3
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -337,16 +365,18 @@ public class ArffReaderTests
     [TestMethod]
     public void RelationalInstancesReadCorrectly()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 relational
-                              @attribute a2 {v1,v2,v3}
-                              @attribute a3 relational
-                                @attribute a4 string
-                                @attribute a5 {v4,v5,v6}
-                              @end a3
-                            @end a1
-                            @data
-                            'v1,\'abc,v6,{1.5}\\r\\ndef,v5\'\r\nv2,\'ghi,v4\\r\\njkl,v6\',{2.5}'";
+        string arff = """
+            @relation relationName
+            @attribute a1 relational
+              @attribute a2 {v1,v2,v3}
+              @attribute a3 relational
+                @attribute a4 string
+                @attribute a5 {v4,v5,v6}
+              @end a3
+            @end a1
+            @data
+            'v1,\'abc,v6,{1.5}\\r\\ndef,v5\'\r\nv2,\'ghi,v4\\r\\njkl,v6\',{2.5}'
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -364,17 +394,19 @@ public class ArffReaderTests
     [TestMethod]
     public void MissingValues()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @attribute a2 integer
-                            @attribute a3 real
-                            @attribute a4 string
-                            @attribute a5 date
-                            @attribute a6 date yyyy-MM-dd
-                            @attribute a7 {v1,'v2',""v3""}
-                            @attribute a8 string
-                            @data
-                            ?,?,?,?,?,?,?,'?'";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @attribute a2 integer
+            @attribute a3 real
+            @attribute a4 string
+            @attribute a5 date
+            @attribute a6 date yyyy-MM-dd
+            @attribute a7 {v1,'v2',"v3"}
+            @attribute a8 string
+            @data
+            ?,?,?,?,?,?,?,'?'
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -395,14 +427,16 @@ public class ArffReaderTests
     [TestMethod]
     public void QuotingHandledCorrectly()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 {',',""{"",'}','?'}
-                            @attribute a2 {',',""{"",'}','?'}
-                            @attribute a3 string
-                            @attribute a4 string
-                            @data
-                            ',',""?"","","",' '
-                            ?,?,'?',""?""";
+        string arff = """
+            @relation relationName
+            @attribute a1 {',',"{",'}','?'}
+            @attribute a2 {',',"{",'}','?'}
+            @attribute a3 string
+            @attribute a4 string
+            @data
+            ',',"?",",",' '
+            ?,?,'?',"?"
+            """;
 
         AssertReader(arff,
             expectedRelationName: "relationName",
@@ -420,16 +454,18 @@ public class ArffReaderTests
     [TestMethod]
     public void InstanceWeightsReadCorrectly()
     {
-        string arff = @"@relation relationName
-                            @attribute a1 numeric
-                            @attribute a2 integer
-                            @attribute a3 real
-                            @data
-                            -6.54,42,0.0
-                            -6.54,42,0.0,{5}
-                            -6.54,42,0.0,{0.476}
-                            {0 -6.54,1 42}
-                            {0 -6.54,1 42},{0.476}";
+        string arff = """
+            @relation relationName
+            @attribute a1 numeric
+            @attribute a2 integer
+            @attribute a3 real
+            @data
+            -6.54,42,0.0
+            -6.54,42,0.0,{5}
+            -6.54,42,0.0,{0.476}
+            {0 -6.54,1 42}
+            {0 -6.54,1 42},{0.476}
+            """;
 
         ArffReader arffReader = CreateArffReader(arff);
 
