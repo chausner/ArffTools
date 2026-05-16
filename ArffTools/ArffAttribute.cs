@@ -58,7 +58,7 @@ namespace ArffTools
         /// <returns>The hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ Type.GetHashCode();
+            return HashCode.Combine(Name, Type);
         }
 
         /// <summary>
@@ -284,10 +284,10 @@ namespace ArffTools
         /// <returns>The hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            int hashCode = 19;
+            int hashCode = 0;
 
             foreach (string value in Values)
-                hashCode = unchecked(hashCode * 31 + value.GetHashCode());
+                hashCode = HashCode.Combine(hashCode, value);;
 
             return hashCode;
         }
@@ -397,10 +397,10 @@ namespace ArffTools
         /// <returns>The hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            int hashCode = 19;
+            int hashCode = 0;
 
             foreach (ArffAttribute attribute in ChildAttributes)
-                hashCode = unchecked(hashCode * 31 + attribute.GetHashCode());
+                hashCode = HashCode.Combine(hashCode, attribute);
 
             return hashCode;
         }

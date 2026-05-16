@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -32,9 +33,7 @@ namespace ArffTools
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            ArffHeader other = obj as ArffHeader;
-
-            if (other == null)
+            if (obj is not ArffHeader other)
                 return false;
 
             return other.RelationName == RelationName && other.Attributes.SequenceEqual(Attributes);
@@ -49,7 +48,7 @@ namespace ArffTools
             int hashCode = RelationName.GetHashCode();
 
             foreach (ArffAttribute attribute in Attributes)
-                hashCode = unchecked(hashCode * 31 + attribute.GetHashCode());
+                hashCode = HashCode.Combine(hashCode, attribute);
 
             return hashCode;
         }
