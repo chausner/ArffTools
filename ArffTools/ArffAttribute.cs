@@ -44,9 +44,7 @@ namespace ArffTools
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            ArffAttribute other = obj as ArffAttribute;
-
-            if (other == null)
+            if (obj is not ArffAttribute other)
                 return false;
 
             return other.Name == Name && other.Type.Equals(Type);
@@ -270,9 +268,7 @@ namespace ArffTools
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            ArffNominalAttribute other = obj as ArffNominalAttribute;
-
-            if (other == null)
+            if (obj is not ArffNominalAttribute other)
                 return false;
 
             return other.Values.SequenceEqual(Values);
@@ -331,9 +327,7 @@ namespace ArffTools
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            ArffDateAttribute other = obj as ArffDateAttribute;
-
-            if (other == null)
+            if (obj is not ArffDateAttribute other)
                 return false;
 
             return other.DateFormat == DateFormat;
@@ -383,9 +377,7 @@ namespace ArffTools
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            ArffRelationalAttribute other = obj as ArffRelationalAttribute;
-
-            if (other == null)
+            if (obj is not ArffRelationalAttribute other)
                 return false;
 
             return other.ChildAttributes.SequenceEqual(ChildAttributes);

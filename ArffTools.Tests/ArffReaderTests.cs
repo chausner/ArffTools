@@ -26,10 +26,7 @@ namespace ArffTools.Tests
         {
             public int Compare(object x, object y)
             {
-                object[] ax = x as object[];
-                object[] ay = y as object[];
-
-                if (ax != null && ay != null)
+                if (x is object[] ax && y is object[] ay)
                 {
                     if (ax.Length < ay.Length)
                         return -1;
